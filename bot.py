@@ -43,9 +43,14 @@ app = Client(
     workdir="./sessions"
 )
 
-@app.on_message(filters.command("bcast") & filters.private)
+@app.on_message(filters.command("bcast") & filters.user(OWNER_ID))
 async def handle_broadcast(client, message):
-    await broadcast(client, message, users_collection, OWNER_ID)
+    if message.from_user.id != OWNER_ID:
+        await message.reply("**You are not authorized to use this command**")
+        return
+    
+    lel = await message.reply_text("`⚡️ Processing...`")
+    await broadcast(client, message, users_collection, lel)
 
 @app.on_message(filters.command("ban") & filters.private)
 async def handle_ban(client, message):
