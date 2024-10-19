@@ -191,16 +191,18 @@ async def scrape(client, message):
     except Exception as e:
         await message.reply(f"An error occurred while scraping: {e}")
         
-# Start message with inline buttons for user settings
 @app.on_message(filters.command("start"))
 async def start(client, message):
     print("Start command received")  # Debugging line
     user_id = message.from_user.id
 
     # Check if user exists in the database
-    if not users_collection.find_one({"user_id": user_id}):
+    user = users_collection.find_one({"user_id": user_id})
+    if not user:
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} added to the database")  # Debugging line
+    else:
+        print(f"User {user_id} already exists in the database")  # Debugging line
 
     # Simple welcome text without formatting
     welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
