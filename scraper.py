@@ -5,6 +5,7 @@ import re
 import asyncio
 import os
 import uuid
+from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
 from config import app, users_collection
 
