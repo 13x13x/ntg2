@@ -8,9 +8,12 @@ from asyncio import sleep
 import os
 import uuid
 import nest_asyncio
-from sim import replace_tag, scrape_amazon_product, amz
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
+
+def some_function():
+    from sim import replace_tag, scrape_amazon_product, amz
+    # Use the imported functions here
 
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
