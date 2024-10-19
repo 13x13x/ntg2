@@ -7,7 +7,7 @@ import os
 import uuid
 from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
-from bot import users_collection
+from bot import app, users_collection
 
 # Command to replace the tag in the Amazon URL and trigger /amz
 @app.on_message(filters.command("run"))
