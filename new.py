@@ -3,40 +3,31 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 import requests
 import asyncio
+from asyncio import sleep
 from pyrogram import errors
 
-async def broadcast(client, message, users_collection, OWNER_ID):
-    all_users = users_collection
-    lel = await message.reply("`⚡️ Processing...`")
+async def broadcast(client, message, users_collection, lel):
     success = 0
     failed = 0
     deactivated = 0
     blocked = 0
+    
+    all_users = users_collection.find()
 
-    # Check if the user is authorized
-    if message.from_user.id != OWNER_ID:
-        await lel.edit("**You are not authorized to use this command**")
-        return
-
-    if len(message.command) < 2:
-        await lel.edit("**Please provide a message to broadcast**")
-        return
-
-    # Determine the type of content to broadcast
+    # Determine the type of message to broadcast
     if message.reply_to_message:
-        reply_message = message.reply_to_message
-        for user in all_users.find():
+        for user in all_users:
+            userid = user["user_id"]
             try:
-                userid = user['user_id']
-                await reply_message.copy(userid)
+                await message.reply_to_message.copy(int(userid))
                 success += 1
             except FloodWait as ex:
                 await asyncio.sleep(ex.value)
-                await reply_message.copy(userid)
+                await message.reply_to_message.copy(int(userid))
                 success += 1
             except errors.InputUserDeactivated:
                 deactivated += 1
-                remove_user(userid)  # Ensure you have this function defined
+                remove_user(userid)
             except errors.UserIsBlocked:
                 blocked += 1
             except Exception as e:
@@ -44,9 +35,9 @@ async def broadcast(client, message, users_collection, OWNER_ID):
                 failed += 1
     else:
         text = " ".join(message.command[1:])
-        for user in all_users.find():
+        for user in all_users:
+            userid = user["user_id"]
             try:
-                userid = user['user_id']
                 await client.send_message(userid, text)
                 success += 1
             except FloodWait as ex:
@@ -55,14 +46,17 @@ async def broadcast(client, message, users_collection, OWNER_ID):
                 success += 1
             except errors.InputUserDeactivated:
                 deactivated += 1
-                remove_user(userid)  # Ensure you have this function defined
+                remove_user(userid)
             except errors.UserIsBlocked:
                 blocked += 1
             except Exception as e:
                 print(f"Failed to send message to user {userid}: {e}")
                 failed += 1
 
-    await lel.edit(f"✅ Successfully sent to `{success}` users.\n❌ Failed to send to `{failed}` users.\n👾 Found `{blocked}` blocked users.\n👻 Found `{deactivated}` deactivated users.")
+    await lel.edit(f"✅ Successfully sent to `{success}` users.\n"
+                   f"❌ Failed to `{failed}` users.\n"
+                   f"👾 Found `{blocked}` blocked users.\n"
+                   f"👻 Found `{deactivated}` deactivated users.")
 
 async def ban_user(client, message, users_collection, OWNER_ID):
     if message.from_user.id != OWNER_ID:
