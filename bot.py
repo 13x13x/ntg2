@@ -182,45 +182,6 @@ async def remove_footer(client, callback_query):
     await callback_query.answer("ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
 
-@app.on_message(filters.command("ntg") & filters.private)
-async def replace_tag(client, message):
-    user_id = message.from_user.id
-    print(f"/ntg command received from {user_id}")  # Debugging line
-
-    user = users_collection.find_one({"user_id": user_id})
-
-    if not user:
-        await message.reply("**User not found in the database. Please start the bot again.**")
-        return
-
-    amazon_tag = user.get('amazon_tag')
-    if not amazon_tag:
-        await message.reply("**Please add your Amazon tag from the user settings using the 'set/edit tag' button.**")
-        return
-
-    try:
-        if len(message.command) > 1:
-            url = message.command[1]
-            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
-
-            # Replace existing tag or add new one
-            if "tag=" in url:
-                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
-            else:
-                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
-
-            footer = user.get('footer', '')  # Get the footer, if available
-            final_message = f"**Here is your modified Amazon link:**\n**{updated_url}**"
-            if footer:
-                final_message += f"\n\n{footer}"  # Append the footer
-
-            await message.reply(final_message)
-        else:
-            await message.reply("**Please provide a valid Amazon URL.**")
-    except Exception as e:
-        print(f"Error in /ntg command: {e}")  # Debugging
-        await message.reply(f"Error in /ntg command: {e}")
-
 # Starting the bot
 async def main():
     await app.start()
