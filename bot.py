@@ -43,10 +43,6 @@ app = Client(
     workdir="./sessions"
 )
 
-import re
-import requests
-from bs4 import BeautifulSoup
-import asyncio
 
 @app.on_message(filters.command("amz") & filters.private)
 async def amz_command(client, message):
