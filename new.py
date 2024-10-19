@@ -4,7 +4,6 @@ from pymongo.errors import ServerSelectionTimeoutError
 import requests
 import asyncio
 from pyrogram import errors
-from users import users_collection, remove_user  # Import your database and remove_user function
 
 async def broadcast(client, message, users_collection, OWNER_ID):
     all_users = users_collection
