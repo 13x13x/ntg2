@@ -69,15 +69,15 @@ async def replace_tag(client, message):
                 updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
 
             # Automatically call the /run command with the updated URL
-            new_command = f"/run {updated_url}"
+            new_command = f"**/run {updated_url}**"
             sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
 
             # Wait for 3 seconds, then delete the message
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
             await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
 
         else:
-            await message.reply("**Please provide a valid Amazon URL.**")
+            await message.reply("**Please provide a valid Amazon URL**")
     except Exception as e:
         print(f"Error in /amz command: {e}")  # Debugging
         await message.reply(f"Error in /amz command: {e}")
@@ -100,7 +100,7 @@ def scrape_amazon_product(url):
     if product_name:
         product_name = product_name.get_text(strip=True)
     else:
-        return "Product name not found", None
+        return "**Product name not found , Try Again**", None
 
     # Price
     price = soup.find('span', {'class': 'a-price-whole'})
@@ -139,7 +139,7 @@ def scrape_amazon_product(url):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n[🛒 **𝗕𝗨𝗬 𝗡𝗢𝗪**]({url})"
+    product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
     return product_details, product_image_url
 
@@ -148,7 +148,7 @@ def scrape_amazon_product(url):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**Please provide a valid Amazon URL.**")
+            await message.reply("**Please provide a valid Amazon URL**")
             return
 
         url = message.command[1]
@@ -159,7 +159,7 @@ async def scrape(client, message):
         user = users_collection.find_one({"user_id": user_id})
 
         if not user:
-            await message.reply("**User not found in the database. Please start the bot again.**")
+            await message.reply("**User not found in the database Please /start the bot again **")
             return
 
         footer = user.get('footer', '')  # Get the footer, if available
@@ -244,7 +244,7 @@ async def add_tag(client, callback_query):
     user_id = callback_query.from_user.id
     # Set awaiting_tag to True for this user
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_tag": True}})
-    await callback_query.message.reply("**ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `tag=csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     await sleep(60)
 
