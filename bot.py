@@ -204,7 +204,6 @@ async def scrape(client, message):
         
 @app.on_message(filters.command("start"))
 async def start(client, message):
-    print("Start command received")  # Debugging line
     user_id = message.from_user.id
 
     # Check if user exists in the database
