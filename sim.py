@@ -3,31 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import asyncio
-import os
 import uuid
 from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
 from bot import app, users_collection
 
-# Command to replace the tag in the Amazon URL and trigger /amz
-@app.on_message(filters.command("run"))
-async def replace_tag(client, message):
-    try:
-        if len(message.command) > 1:
-            url = message.command[1]
-            updated_url = re.sub(r'tag=[^&]+', 'tag=deals1vc-21', url)
-            
-            # Automatically call the /amz command with the updated URL
-            new_command = f"**/amz {updated_url}**"
-            sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
-
-            # Wait for 3 seconds, then delete the message
-            await asyncio.sleep(3)
-            await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
-        else:
-            await message.reply("**Please provide a valid URL.**")
-    except Exception as e:
-        await message.reply(f"Error in /run command: {e}")
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
@@ -91,7 +71,7 @@ def scrape_amazon_product(url):
     return product_details, product_image_url
 
 # Command to scrape Amazon product
-@app.on_message(filters.command("amz") & filters.private)
+@app.on_message(filters.command("run") & filters.private)
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
