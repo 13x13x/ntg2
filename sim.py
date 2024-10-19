@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 import requests
 from bs4 import BeautifulSoup
 import re
+import nest_asyncio
 import asyncio
 from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
