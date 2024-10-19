@@ -331,28 +331,28 @@ async def start(client, message):
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
-    if user.get('banned', False):  # Check if the user is banned
+    if user and user.get('banned', False):  # Check if the user is banned
         await message.reply("**You Are Banned 🚫 From Using This Bot**")
         return
 
     # Welcome text without formatting
-welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
+    welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
 
-# Create the inline keyboard
-keyboard = InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs", callback_data="user_settings")
-    ]
-])
+    # Create the inline keyboard
+    keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs", callback_data="user_settings")
+        ]
+    ])
 
-# Define the image URL or path (can be a URL or a local file path)
-welcome_image_url = "https://envs.sh/puF.jpg"  # Replace with your image URL
+    # Define the image URL or path (can be a URL or a local file path)
+    welcome_image_url = "https://envs.sh/puF.jpg"  # Replace with your image URL
 
-try:
-    # Send welcome image with caption (optional)
-    await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
-except Exception as e:
-    print(f"Error sending message: {e}")
+    try:
+        # Send welcome image with caption (optional)
+        await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
+    except Exception as e:
+        print(f"Error sending message: {e}")
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
