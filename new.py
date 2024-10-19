@@ -2,7 +2,6 @@ from pyrogram import Client, filters
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 import requests
-from bot import app, users_collection
 
 # Command to broadcast a message (admin only)
 async def broadcast(client, message, users_collection, OWNER_ID):
