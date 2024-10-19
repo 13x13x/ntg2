@@ -5,9 +5,48 @@ import re
 import nest_asyncio
 import asyncio
 from pymongo.errors import ServerSelectionTimeoutError
-import nest_asyncio
 from bot import app, users_collection
 
+@app.on_message(filters.command("amz") & filters.private)
+async def replace_tag(client, message):
+    user_id = message.from_user.id
+    print(f"/amz command received from {user_id}")  # Debugging line
+
+    user = users_collection.find_one({"user_id": user_id})
+
+    if not user:
+        await message.reply("**User not found in the database. Please start the bot again.**")
+        return
+
+    amazon_tag = user.get('amazon_tag')
+    if not amazon_tag:
+        await message.reply("**Please add your Amazon tag from the user settings using the 'set/edit tag' button.**")
+        return
+
+    try:
+        if len(message.command) > 1:
+            url = message.command[1]
+            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
+
+            # Replace existing tag or add new one
+            if "tag=" in url:
+                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
+            else:
+                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
+
+            # Automatically call the /run command with the updated URL
+            new_command = f"/run {updated_url}"
+            sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
+
+            # Wait for 3 seconds, then delete the message
+            await asyncio.sleep(3)
+            await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
+
+        else:
+            await message.reply("**Please provide a valid Amazon URL.**")
+    except Exception as e:
+        print(f"Error in /amz command: {e}")  # Debugging
+        await message.reply(f"Error in /amz command: {e}")
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
@@ -32,7 +71,7 @@ def scrape_amazon_product(url):
     # Price
     price = soup.find('span', {'class': 'a-price-whole'})
     if price:
-        price = price.get_text(strip=True).rstrip('.')  # Remove extra period if exists
+        price = price.get_text(strip=True).rstrip('.')
     else:
         price = 'not found'
 
@@ -67,7 +106,7 @@ def scrape_amazon_product(url):
 
     # Final product details response
     product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n[🛒 **𝗕𝗨𝗬 𝗡𝗢𝗪**]({url})"
-
+    
     return product_details, product_image_url
 
 # Command to scrape Amazon product
@@ -80,6 +119,18 @@ async def scrape(client, message):
 
         url = message.command[1]
         product_details, product_image_url = scrape_amazon_product(url)
+
+        # Fetch user info from the database using user_id
+        user_id = message.from_user.id  # Get the user ID from the message
+        user = users_collection.find_one({"user_id": user_id})
+
+        if not user:
+            await message.reply("**User not found in the database. Please start the bot again.**")
+            return
+
+        footer = user.get('footer', '')  # Get the footer, if available
+        if footer:
+            product_details += f"\n\n**{footer}**"  # Append the footer to product details
 
         if product_image_url:
             await message.reply_photo(photo=product_image_url, caption=product_details)
