@@ -7,19 +7,7 @@ import os
 import uuid
 from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
-from config import app, users_collection
-
-# Session setup for the bot
-session_name = f"web_scraper_bot_{api_id}_{uuid.uuid4()}"
-os.makedirs("./sessions", exist_ok=True)
-
-app = Client(
-    session_name,
-    api_id=api_id,
-    api_hash=api_hash,
-    bot_token=bot_token,
-    workdir="./sessions"
-)
+from bot import users_collection
 
 # Command to replace the tag in the Amazon URL and trigger /amz
 @app.on_message(filters.command("run"))
