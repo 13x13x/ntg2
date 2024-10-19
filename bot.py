@@ -43,7 +43,6 @@ app = Client(
     workdir="./sessions"
 )
 
-
 @app.on_message(filters.command("amz") & filters.private)
 async def amz_command(client, message):
     user_id = message.from_user.id
@@ -82,16 +81,16 @@ async def amz_command(client, message):
                         chat_id=message.chat.id,
                         photo=product_image_url,
                         caption=product_details,
-                        parse_mode='markdownV2'
+                        parse_mode='MarkdownV2'  # Ensure correct casing
                     )
                 else:
-                    await message.reply(product_details, parse_mode='markdownV2')
+                    await message.reply(product_details, parse_mode='MarkdownV2')
             else:
                 await message.reply("**Failed to retrieve product details.**")
         else:
             await message.reply("**Please Provide A Valid Amazon URL**")
     except Exception as e:
-        await message.reply(f"**Error in /amz command: {e}**")
+        await message.reply(f"**Error in /amz command: {str(e)}**")
 
 def scrape_amazon_product(url, user):
     headers = {
@@ -108,7 +107,7 @@ def scrape_amazon_product(url, user):
     # Product name
     product_name = soup.find('span', {'id': 'productTitle'})
     if product_name:
-        product_name = product_name.get_text(strip=True)
+        product_name = re.escape(product_name.get_text(strip=True))  # Escape for markdownV2
     else:
         return "**Product Name Not Found, Try Again**", None
 
@@ -149,7 +148,11 @@ def scrape_amazon_product(url, user):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    product_details = (f"🤯 **{product_name}**\n\n"
+                       f"💥 **Discount: {discount_text} 🔥**\n"
+                       f"❌ **Regular Price:** **~~{mrp}/-~~**\n"
+                       f"✅ **Deal Price: ₹{price}/-**\n\n"
+                       f"**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**")
 
     # Get the footer, if available
     footer = user.get('footer', '')  
