@@ -7,10 +7,6 @@ from asyncio import sleep
 from pyrogram import errors
 
 async def broadcast(client, message, users_collection, lel):
-    if message.from_user.id != OWNER_ID:
-        await message.reply("**You are not authorized to use this command**")
-        return
-        
     success = 0
     failed = 0
     deactivated = 0
