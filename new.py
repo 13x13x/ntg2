@@ -2,49 +2,68 @@ from pyrogram import Client, filters
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 import requests
+import asyncio
+from pyrogram import errors
+from MongoClient import users_collection, remove_user  # Import your database and remove_user function
 
 async def broadcast(client, message, users_collection, OWNER_ID):
+    all_users = users_collection
+    lel = await message.reply("`⚡️ Processing...`")
+    success = 0
+    failed = 0
+    deactivated = 0
+    blocked = 0
+
+    # Check if the user is authorized
     if message.from_user.id != OWNER_ID:
-        await message.reply("**You are not authorized to use this command**")
+        await lel.edit("**You are not authorized to use this command**")
         return
 
     if len(message.command) < 2:
-        await message.reply("**Please provide a message to broadcast**")
+        await lel.edit("**Please provide a message to broadcast**")
         return
-
-    all_users = users_collection.find({})
-    count_sent = 0
 
     # Determine the type of content to broadcast
     if message.reply_to_message:
-        # Broadcasting a reply (can be a text message, photo, document, etc.)
         reply_message = message.reply_to_message
-
-        for user in all_users:
+        for user in all_users.find():
             try:
-                # Send based on the type of reply message
-                if reply_message.text:
-                    await client.send_message(user['user_id'], reply_message.text)
-                elif reply_message.photo:
-                    await client.send_photo(user['user_id'], reply_message.photo.file_id)
-                elif reply_message.document:
-                    await client.send_document(user['user_id'], reply_message.document.file_id)
-                # Add other types as needed (like videos, audios, etc.)
-                count_sent += 1
+                userid = user['user_id']
+                await reply_message.copy(userid)
+                success += 1
+            except FloodWait as ex:
+                await asyncio.sleep(ex.value)
+                await reply_message.copy(userid)
+                success += 1
+            except errors.InputUserDeactivated:
+                deactivated += 1
+                remove_user(userid)  # Ensure you have this function defined
+            except errors.UserIsBlocked:
+                blocked += 1
             except Exception as e:
-                print(f"Failed to send message to user {user['user_id']}: {e}")
-
+                print(f"Failed to send message to user {userid}: {e}")
+                failed += 1
     else:
-        # Broadcasting a regular text message
         text = " ".join(message.command[1:])
-        for user in all_users:
+        for user in all_users.find():
             try:
-                await client.send_message(user['user_id'], text)
-                count_sent += 1
+                userid = user['user_id']
+                await client.send_message(userid, text)
+                success += 1
+            except FloodWait as ex:
+                await asyncio.sleep(ex.value)
+                await client.send_message(userid, text)
+                success += 1
+            except errors.InputUserDeactivated:
+                deactivated += 1
+                remove_user(userid)  # Ensure you have this function defined
+            except errors.UserIsBlocked:
+                blocked += 1
             except Exception as e:
-                print(f"Failed to send message to user {user['user_id']}: {e}")
+                print(f"Failed to send message to user {userid}: {e}")
+                failed += 1
 
-    await message.reply(f"**Broadcast message sent to {count_sent} users**")
+    await lel.edit(f"✅ Successfully sent to `{success}` users.\n❌ Failed to send to `{failed}` users.\n👾 Found `{blocked}` blocked users.\n👻 Found `{deactivated}` deactivated users.")
 
 async def ban_user(client, message, users_collection, OWNER_ID):
     if message.from_user.id != OWNER_ID:
