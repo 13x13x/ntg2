@@ -3,22 +3,46 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 import requests
 
-# Command to broadcast a message (admin only)
 async def broadcast(client, message, users_collection, OWNER_ID):
     if message.from_user.id != OWNER_ID:
         await message.reply("**You are not authorized to use this command**")
         return
 
-    text = " ".join(message.command[1:])
+    if len(message.command) < 2:
+        await message.reply("**Please provide a message to broadcast**")
+        return
+
     all_users = users_collection.find({})
     count_sent = 0
 
-    for user in all_users:
-        try:
-            await client.send_message(user['user_id'], text)
-            count_sent += 1
-        except Exception as e:
-            print(f"Failed to send message to user {user['user_id']}: {e}")
+    # Determine the type of content to broadcast
+    if message.reply_to_message:
+        # Broadcasting a reply (can be a text message, photo, document, etc.)
+        reply_message = message.reply_to_message
+
+        for user in all_users:
+            try:
+                # Send based on the type of reply message
+                if reply_message.text:
+                    await client.send_message(user['user_id'], reply_message.text)
+                elif reply_message.photo:
+                    await client.send_photo(user['user_id'], reply_message.photo.file_id)
+                elif reply_message.document:
+                    await client.send_document(user['user_id'], reply_message.document.file_id)
+                # Add other types as needed (like videos, audios, etc.)
+                count_sent += 1
+            except Exception as e:
+                print(f"Failed to send message to user {user['user_id']}: {e}")
+
+    else:
+        # Broadcasting a regular text message
+        text = " ".join(message.command[1:])
+        for user in all_users:
+            try:
+                await client.send_message(user['user_id'], text)
+                count_sent += 1
+            except Exception as e:
+                print(f"Failed to send message to user {user['user_id']}: {e}")
 
     await message.reply(f"**Broadcast message sent to {count_sent} users**")
 
@@ -93,14 +117,3 @@ async def user_stats(client, message, users_collection, OWNER_ID):
     total_users = users_collection.count_documents({})
     banned_users = users_collection.count_documents({"banned": True})
     await message.reply(f"**Total Users: {total_users}**\n**Banned Users: {banned_users}**")
-
-# Check if user is banned before executing commands
-@Client.on_message(filters.command(["start", "amz", "run"]))
-async def check_ban(client, message, users_collection):
-    user = users_collection.find_one({"user_id": message.from_user.id})
-    if user and user.get("banned"):
-        await message.reply("**You are banned from this bot**")
-        return
-
-    # Process the command if the user is not banned
-    # Add your command handling logic here...
