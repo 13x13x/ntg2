@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import asyncio
-import uuid
 from pymongo.errors import ServerSelectionTimeoutError
 import nest_asyncio
 from bot import app, users_collection
