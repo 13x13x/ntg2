@@ -10,6 +10,7 @@ import uuid
 import nest_asyncio
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
+from new import broadcast, ban_user, unban_user, user_stats
 
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
@@ -40,6 +41,22 @@ app = Client(
     bot_token=bot_token,
     workdir="./sessions"
 )
+
+@app.on_message(filters.command("bcast") & filters.private)
+async def handle_broadcast(client, message):
+    await broadcast(client, message, users_collection, OWNER_ID)
+
+@app.on_message(filters.command("ban") & filters.private)
+async def handle_ban(client, message):
+    await ban_user(client, message, users_collection, OWNER_ID)
+
+@app.on_message(filters.command("unban") & filters.private)
+async def handle_unban(client, message):
+    await unban_user(client, message, users_collection, OWNER_ID)
+
+@app.on_message(filters.command("users") & filters.private)
+async def handle_user_stats(client, message):
+    await user_stats(client, message, users_collection, OWNER_ID)
 
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
