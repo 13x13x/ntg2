@@ -8,7 +8,7 @@ from asyncio import sleep
 import os
 import uuid
 import nest_asyncio
-from sim import replace_tag scrape_amazon_product amz
+from sim import replace_tag, scrape_amazon_product, amz
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
