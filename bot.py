@@ -177,6 +177,10 @@ async def scrape(client, message):
         user_id = message.from_user.id  # Get the user ID from the message
         user = users_collection.find_one({"user_id": user_id})
 
+        if user.get('banned', False):  # Check if the user is banned
+            await message.reply("**You Are Banned 🚫 From Using This Bot**")
+            return
+
         if not user:
             await message.reply("**User Not Found In The Database Please /start the bot again **")
             return
@@ -205,6 +209,10 @@ async def start(client, message):
         print(f"User {user_id} Added in the database")  # Debugging line
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
+
+    if user.get('banned', False):  # Check if the user is banned
+        await message.reply("**You Are Banned 🚫 From Using This Bot**")
+        return
 
     # Simple welcome text without formatting
     welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
