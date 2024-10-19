@@ -66,8 +66,8 @@ async def replace_tag(client, message):
     user = users_collection.find_one({"user_id": user_id})
 
     if user.get('banned', False):  # Check if the user is banned
-    await message.reply("**You are banned 🚫 from using this bot**")
-    return
+        await message.reply("**You are banned 🚫 from using this bot**")
+        return
 
     if not user:
         await message.reply("**User not found in the database. Please /start the bot again**")
