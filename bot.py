@@ -224,12 +224,12 @@ welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғ
 # Create the inline keyboard
 keyboard = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("User Settings", callback_data="user_settings")
+        InlineKeyboardButton("㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs", callback_data="user_settings")
     ]
 ])
 
 # Define the image URL or path (can be a URL or a local file path)
-welcome_image_url = ""  # Replace with your image URL
+welcome_image_url = "https://envs.sh/puF.jpg"  # Replace with your image URL
 
 try:
     # Send welcome image with caption (optional)
@@ -248,6 +248,9 @@ async def user_settings(client, callback_query):
     username = callback_query.from_user.username or "Unknown User"
 
     keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("⚙️ ʀᴇғʀᴇsʜ ᴍᴇɴᴜ", callback_data="user_settings")
+        ],
         [
             InlineKeyboardButton("sᴇᴛ/ᴇᴅɪᴛ ᴛᴀɢ", callback_data="add_tag"),
             InlineKeyboardButton("ʀᴇᴍᴏᴠᴇ ᴛᴀɢ", callback_data="remove_tag")
