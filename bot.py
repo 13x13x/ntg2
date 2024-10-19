@@ -65,13 +65,17 @@ async def replace_tag(client, message):
 
     user = users_collection.find_one({"user_id": user_id})
 
+    if user.get('banned', False):  # Check if the user is banned
+    await message.reply("**You are banned 🚫 from using this bot**")
+    return
+
     if not user:
-        await message.reply("**User not found in the database. Please start the bot again.**")
+        await message.reply("**User not found in the database. Please /start the bot again**")
         return
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please add your Amazon tag from the user settings using the 'set/edit tag' button.**")
+        await message.reply("**Please add your Amazon tag from the user settings using the /start 'set,edit tag' buttons**")
         return
 
     try:
@@ -90,7 +94,7 @@ async def replace_tag(client, message):
             sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
 
             # Wait for 3 seconds, then delete the message
-            await asyncio.sleep(5)
+            await asyncio.sleep(10)
             await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
 
         else:
