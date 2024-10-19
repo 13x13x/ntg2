@@ -62,21 +62,19 @@ async def handle_user_stats(client, message):
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
     user_id = message.from_user.id
-    print(f"/amz command received from {user_id}")  # Debugging line
-
     user = users_collection.find_one({"user_id": user_id})
 
     if user.get('banned', False):  # Check if the user is banned
-        await message.reply("**You are banned 🚫 from using this bot**")
+        await message.reply("**You Are Banned 🚫 From Using This Bot**")
         return
 
     if not user:
-        await message.reply("**User not found in the database. Please /start the bot again**")
+        await message.reply("**User Not Found In The Database. Please /start The Bot Again**")
         return
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please add your Amazon tag from the user settings using the /start 'set,edit tag' buttons**")
+        await message.reply("**Please Add Your Amazon Tag From The User Settings Using The /start 'Set,Edit Tag' Buttons**")
         return
 
     try:
@@ -99,10 +97,9 @@ async def replace_tag(client, message):
             await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
 
         else:
-            await message.reply("**Please provide a valid Amazon URL**")
+            await message.reply("**Please Provide A Valid Amazon URL**")
     except Exception as e:
-        print(f"Error in /amz command: {e}")  # Debugging
-        await message.reply(f"Error in /amz command: {e}")
+        await message.reply(f"**Error in /amz command: {e}**")
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
@@ -122,7 +119,7 @@ def scrape_amazon_product(url):
     if product_name:
         product_name = product_name.get_text(strip=True)
     else:
-        return "**Product name not found , Try Again**", None
+        return "**Product Name Not Found , Try Again**", None
 
     # Price
     price = soup.find('span', {'class': 'a-price-whole'})
@@ -151,7 +148,7 @@ def scrape_amazon_product(url):
         discount_percentage = (discount / mrp_value) * 100
         discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
     except (ValueError, TypeError):
-        discount_text = 'Unable to calculate discount'
+        discount_text = 'Unable to Calculate Discount'
 
     # Product Image
     image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
@@ -170,7 +167,7 @@ def scrape_amazon_product(url):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**Please provide a valid Amazon URL**")
+            await message.reply("**Please Provide A Valid Amazon URL**")
             return
 
         url = message.command[1]
@@ -181,7 +178,7 @@ async def scrape(client, message):
         user = users_collection.find_one({"user_id": user_id})
 
         if not user:
-            await message.reply("**User not found in the database Please /start the bot again **")
+            await message.reply("**User Not Found In The Database Please /start the bot again **")
             return
 
         footer = user.get('footer', '')  # Get the footer, if available
@@ -194,7 +191,7 @@ async def scrape(client, message):
             await message.reply(product_details)
 
     except Exception as e:
-        await message.reply(f"An error occurred while scraping: {e}")
+        await message.reply(f"**An error occurred while scraping: {e}**")
         
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -205,7 +202,7 @@ async def start(client, message):
     user = users_collection.find_one({"user_id": user_id})
     if not user:
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
-        print(f"User {user_id} added to the database")  # Debugging line
+        print(f"User {user_id} Added in the database")  # Debugging line
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
