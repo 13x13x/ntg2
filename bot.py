@@ -93,8 +93,6 @@ async def amz_command(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz command: {e}**")
 
-
-# Scraper function to fetch Amazon product data
 def scrape_amazon_product(url, user):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
@@ -151,7 +149,7 @@ def scrape_amazon_product(url, user):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** **~~{mrp}/-~~**\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    product_details = f"🤯 **{product_name}**\n\n💥 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
 
     # Get the footer, if available
     footer = user.get('footer', '')  
