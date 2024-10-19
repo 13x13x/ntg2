@@ -82,10 +82,10 @@ async def amz_command(client, message):
                         chat_id=message.chat.id,
                         photo=product_image_url,
                         caption=product_details,
-                        parse_mode='markdown'
+                        parse_mode='markdownV2'
                     )
                 else:
-                    await message.reply(product_details, parse_mode='markdown')
+                    await message.reply(product_details, parse_mode='markdownV2')
             else:
                 await message.reply("**Failed to retrieve product details.**")
         else:
