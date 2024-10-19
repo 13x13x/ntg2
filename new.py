@@ -53,10 +53,10 @@ async def broadcast(client, message, users_collection, lel):
                 print(f"Failed to send message to user {userid}: {e}")
                 failed += 1
 
-    await lel.edit(f"✅ Successfully sent to `{success}` users.\n"
-                   f"❌ Failed to `{failed}` users.\n"
-                   f"👾 Found `{blocked}` blocked users.\n"
-                   f"👻 Found `{deactivated}` deactivated users.")
+    await lel.edit(f"**✅ Successfully sent to `{success}` users**\n"
+                   f"**❌ Failed to `{failed}` users**\n"
+                   f"**👾 Found `{blocked}` blocked users**\n"
+                   f"**👻 Found `{deactivated}` deactivated users**")
 
 async def ban_user(client, message, users_collection, OWNER_ID):
     if message.from_user.id != OWNER_ID:
