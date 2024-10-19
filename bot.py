@@ -42,17 +42,6 @@ app = Client(
     workdir="./sessions"
 )
 
-# Check if user is banned before executing commands
-@app.on_message(filters.command(["start", "amz", "run"]))
-async def check_ban(client, message, users_collection):
-    user = users_collection.find_one({"user_id": message.from_user.id})
-    if user and user.get("banned"):
-        await message.reply("**You are banned from this bot**")
-        return
-
-    # Process the command if the user is not banned
-    # Add your command handling logic here...
-
 
 @app.on_message(filters.command("bcast") & filters.private)
 async def handle_broadcast(client, message):
