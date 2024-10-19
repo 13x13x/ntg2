@@ -13,6 +13,7 @@ from pymongo.errors import ServerSelectionTimeoutError
 
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+OWNER_ID = 6290483448
 
 # Telegram API credentials
 api_id = 24972774
