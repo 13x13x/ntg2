@@ -25,10 +25,8 @@ MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrit
 OWNER_ID = 6290483448
 
 # Amazon ApI
-ACCESS_KEY = 'YOUR_AMAZON_ACCESS_KEY'
-SECRET_KEY = 'YOUR_AMAZON_SECRET_KEY'
-REGION = 'us-east-1'
-ENDPOINT = 'webservices.amazon.com'
+ACCESS_KEY = 'AKIAJ2FDPCBYG5TNVQXQ'
+SECRET_KEY = 'G0Ucdx0v7esLfJvwr7dS8DEKBDvFwpxjfUBoRSUl'
 
 # Telegram API credentials
 api_id = 24972774
