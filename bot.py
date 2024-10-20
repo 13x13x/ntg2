@@ -297,8 +297,8 @@ async def user_settings(client, callback_query):
         ]
     ])
 
-    # Update the message to provide more explanation
-    await callback_query.message.edit_text(
+    # Update the message to provide more explanation using callback_query
+    await callback_query.edit_message_text(
         f"┌──── **㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs** ───\n"
         f"│\n"
         f"├── **ɴᴀᴍᴇ :** `@{username}`\n"
