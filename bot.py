@@ -158,7 +158,7 @@ async def scrape_amazon_product(url, user):
                                f"💥 **Discount: {discount_text} 🔥**\n"
                                f"❌ **Regular Price:** **~~{mrp}/-~~**\n"
                                f"✅ **Deal Price: ₹{price}/-**\n\n"
-                               f"**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"")
+                               f"**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**")
 
             footer = user.get('footer', '')
             if footer:
