@@ -182,13 +182,10 @@ async def handle_ban(client, message):
 async def handle_unban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
 
-@app.on_message(filters.command("users") & filters.private)
-async def handle_user_stats(client, message):
-    await user_stats(client, message, users_collection, OWNER_ID)
 
 async def get_userinfo_img(user_id, profile_path=None):
-    # Create a background image
-    bg = Image.new("RGB", (800, 800), (30, 30, 30))
+    # Create a background image with YouTube thumbnail size
+    bg = Image.new("RGB", (1280, 720), (30, 30, 30))  # 1280x720 pixels
     
     # Add user's profile picture if provided
     if profile_path:
@@ -200,15 +197,15 @@ async def get_userinfo_img(user_id, profile_path=None):
 
             circular_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
             circular_img.paste(img, (0, 0), mask)
-            resized = circular_img.resize((400, 400))
-            bg.paste(resized, (200, 100), resized)
+            resized = circular_img.resize((400, 400), Image.ANTIALIAS)  # Use ANTIALIAS for better quality
+            bg.paste(resized, (440, 50), resized)  # Center the image in the thumbnail
         except Exception as e:
             print(f"Error processing image: {e}")
 
     # Draw user ID on the image
     img_draw = ImageDraw.Draw(bg)
     font = ImageFont.load_default()  # Load the default font; customize if needed
-    img_draw.text((300, 550), text=f"User ID: {user_id}", fill=(255, 255, 255), font=font)
+    img_draw.text((500, 600), text=f"User ID: {user_id}", fill=(255, 255, 255), font=font)
 
     # Save the image
     path = f"./userinfo_img_{user_id}.png"
@@ -223,7 +220,7 @@ async def start(client, message):
     user = users_collection.find_one({"user_id": user_id})
     if not user:
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
-        print(f"User {user_id} Added in the database")  # Debugging line
+        print(f"User {user_id} added to the database")  # Debugging line
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
@@ -241,7 +238,7 @@ async def start(client, message):
         ]
     ])
 
-    # Generate user's image (if you have a path for it)
+    # Generate user's image (provide a path for the profile image)
     profile_path = None  # Set this to the user's profile image path if available
     user_image_path = await get_userinfo_img(user_id, profile_path)
 
