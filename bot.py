@@ -43,17 +43,6 @@ app = Client(
     workdir="./sessions"
 )
 
-@app.on_message(filters.command("me"))
-async def me_command(client, message):
-    user_id = message.from_user.id
-    user = users_collection.find_one({"user_id": user_id})
-
-    if user:
-        # Call the user_settings function to send the menu
-        await user_settings(client, message)
-    else:
-        await message.reply("**User settings not found**")
-
 @app.on_message(filters.command("start"))
 async def start(client, message):
     user_id = message.from_user.id
