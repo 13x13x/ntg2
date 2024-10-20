@@ -77,7 +77,7 @@ async def start(client, message):
         await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
-        
+
 @app.on_message(filters.command("amz") & filters.private)
 async def amz_command(client, message):
     user_id = message.from_user.id
@@ -105,15 +105,16 @@ async def amz_command(client, message):
 
             if product_details:
                 if product_image_url:
-                    await client.send_photo(chat_id=message.chat.id, photo=product_image_url, caption=product_details, parse_mode='markdown')
+                    await client.send_photo(chat_id=message.chat.id, photo=product_image_url, caption=product_details, parse_mode='html')
                 else:
-                    await message.reply(product_details, parse_mode='markdown')
+                    await message.reply(product_details, parse_mode='html')
             else:
                 await message.reply("**Failed to retrieve product details.**")
         except Exception as e:
             await message.reply(f"**Error in /amz command: {str(e)}**")
     else:
         await message.reply("**Please Provide A Valid Amazon URL**")
+
 
 async def scrape_amazon_product(url, user):
     headers = {
@@ -154,15 +155,15 @@ async def scrape_amazon_product(url, user):
             image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
             product_image_url = image_tag.img['src'].replace('_UX75_', '_UX500_') if image_tag and image_tag.img else None
 
-            product_details = (f"🤯 **{product_name}**\n\n"
-                               f"💥 **Discount: {discount_text} 🔥**\n"
-                               f"❌ **Regular Price:** **~~{mrp}/-~~**\n"
-                               f"✅ **Deal Price: ₹{price}/-**\n\n"
-                               f"**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**")
+            product_details = (f"🤯 <b>{product_name}</b>\n\n"
+                               f"💥 <b>Discount: {discount_text} 🔥</b>\n"
+                               f"❌ <b>Regular Price:</b> <s>{mrp}/-</s>\n"
+                               f"✅ <b>Deal Price: ₹{price}/-</b>\n\n"
+                               f"<a href='{url}'>🛒 𝗕𝗨𝗬 𝗡𝗢𝗪</a>")
 
             footer = user.get('footer', '')
             if footer:
-                product_details += f"\n\n*{footer}*"
+                product_details += f"\n\n<b>{footer}</b>"
 
             return product_details, product_image_url
 
