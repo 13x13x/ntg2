@@ -126,6 +126,10 @@ async def replace_tag(client, message):
         await message.reply(f"**Error in /amz command: {e}**")
 
 # Scraper function to fetch Amazon product data
+import re
+import requests
+from bs4 import BeautifulSoup
+
 def scrape_amazon_product(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
@@ -134,7 +138,7 @@ def scrape_amazon_product(url):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return f"Failed to retrieve page, status code: {response.status_code}", None
+        return f"**Failed To Retrieve Page, Status Code: {response.status_code}**", None
 
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -143,7 +147,7 @@ def scrape_amazon_product(url):
     if product_name:
         product_name = product_name.get_text(strip=True)
     else:
-        return "**Product Name Not Found , Try Again**", None
+        return "**Product Datails Not Found , Try Again**", None
 
     # Price (deal price)
     price_tag = soup.find('span', {'class': 'a-price-whole'})
@@ -161,12 +165,20 @@ def scrape_amazon_product(url):
         # Extract all price values inside the MRP tag
         mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
         if mrp_values:
-            # Filter out any "per" unit values and select the highest valid MRP
-            mrp_values_clean = [float(re.sub(r'[^\d.]', '', val.get_text(strip=True))) for val in mrp_values if "per" not in val.get_text(strip=True).lower()]
+            # Only take MRP values that are NOT per unit (e.g., "per milliliters")
+            mrp_values_clean = []
+            for val in mrp_values:
+                text_value = val.get_text(strip=True)
+                if "per" not in text_value.lower():
+                    try:
+                        # Remove non-numeric characters and convert to float
+                        mrp_values_clean.append(float(re.sub(r'[^\d.]', '', text_value)))
+                    except ValueError:
+                        continue  # Ignore values that can't be converted
             if mrp_values_clean:
                 mrp = f"₹{max(mrp_values_clean):.2f}"
             else:
-                mrp = 'MRP not found'
+                mrp = 'not found'
         else:
             mrp = 'not found'
     else:
@@ -180,7 +192,7 @@ def scrape_amazon_product(url):
         discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
         discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
     except (ValueError, TypeError):
-        discount_text = 'Unable to Calculate Discount'
+        discount_text = 'Unable To Calculate Discount'
 
     # Product Image
     image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
@@ -190,10 +202,10 @@ def scrape_amazon_product(url):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** **~~{mrp}/-~~**\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n\n❌ **Regular Price:** **~~{mrp}/-~~**\n\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
     return product_details, product_image_url
-
+    
 # Command to scrape Amazon product
 @app.on_message(filters.command("amzpd") & filters.private)
 async def scrape(client, message):
