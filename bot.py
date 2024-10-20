@@ -47,56 +47,6 @@ app = Client(
     workdir="./sessions"
 )
 
-def get_font(size, font_path=None):
-    """Nothing!!"""
-    if font_path and os.path.exists(font_path):
-        return ImageFont.truetype(font_path, size)  # Load the TTF font if path is provided
-    else:
-        return ImageFont.load_default()  # Fallback to default font
-
-async def get_userinfo_img(user_id, profile_path=None):
-    # Create a background image with YouTube thumbnail size
-    bg = Image.new("RGB", (1280, 720), (0, 0, 0))  # Set background color to black
-
-    # Add user's profile picture if provided
-    if profile_path and os.path.exists(profile_path):
-        try:
-            img = Image.open(profile_path).convert("RGBA")
-            mask = Image.new("L", img.size, 0)
-            draw = ImageDraw.Draw(mask)
-            draw.ellipse([(0, 0), img.size], fill=255)
-
-            circular_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
-            circular_img.paste(img, (0, 0), mask)
-            resized = circular_img.resize((400, 400), Image.LANCZOS)  # Use LANCZOS for better quality
-
-            # Draw a white stroke around the circular image
-            stroke_width = 10
-            stroke_mask = Image.new("L", resized.size, 0)
-            stroke_draw = ImageDraw.Draw(stroke_mask)
-            stroke_draw.ellipse([(stroke_width, stroke_width), (resized.size[0] - stroke_width, resized.size[1] - stroke_width)], fill=255)
-            bg.paste((255, 255, 255, 255), (440, 50, 840, 450), stroke_mask)  # Draw stroke on the background
-            bg.paste(resized, (440, 50), resized)  # Center the image in the thumbnail
-        except Exception as e:
-            print(f"Error processing image: {e}")
-
-    # Draw user ID on the image
-    img_draw = ImageDraw.Draw(bg)
-
-    # Get the font for the user ID text
-    font_path = None  # Set this if you have a specific font path
-    img_draw.text(
-        (529, 670),  # Adjusted position for user ID (2 inches down approximately)
-        text=str(user_id).upper(),
-        font=get_font(200, font_path),  # Increased font size for user ID
-        fill=(255, 255, 255),  # Color set to white
-    )
-
-    # Save the image
-    path = f"./userinfo_img_{user_id}.png"
-    bg.save(path)
-    return path
-
 @app.on_message(filters.command("start"))
 async def start(client, message):
     user_id = message.from_user.id
@@ -105,7 +55,7 @@ async def start(client, message):
     user = users_collection.find_one({"user_id": user_id})
     if not user:
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
-        print(f"User {user_id} added to the database")  # Debugging line
+        print(f"User {user_id} Added in the database")  # Debugging line
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
@@ -123,20 +73,15 @@ async def start(client, message):
         ]
     ])
 
-    # Generate user's image (provide a path for the profile image)
-    profile_path = None  # Fetch or set the user's profile image path if available
-    if message.from_user.photo:
-        profile_path = f"./profile_pics/{user_id}.jpg"  # Adjust the path as necessary
-        await client.download_media(message.from_user.photo.big_file_id, profile_path)
-
-    user_image_path = await get_userinfo_img(user_id, profile_path)
+    # Define the image URL or path (can be a URL or a local file path)
+    welcome_image_url = "https://envs.sh/pS2.jpg"  # Replace with your image URL
 
     try:
         # Send welcome image with caption (optional)
-        await message.reply_photo(photo=user_image_path, caption=welcome_text, reply_markup=keyboard)
+        await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
-
+        
 @app.on_message(filters.command("amz") & filters.private)
 async def amz_command(client, message):
     user_id = message.from_user.id
