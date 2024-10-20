@@ -108,13 +108,17 @@ async def replace_tag(client, message):
             else:
                 updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
 
-            # Automatically call the /run command with the updated URL
-            new_command = f"**/amzpd {updated_url}**"
-            sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
+            # Call the scrape_amazon_product function directly
+            product_details, product_image_url = scrape_amazon_product(updated_url)
 
-            # Wait for 3 seconds, then delete the message
-            await asyncio.sleep(10)
-            await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
+            footer = user.get('footer', '')  # Get the footer, if available
+            if footer:
+                product_details += f"\n\n**{footer}**"  # Append the footer to product details
+
+            if product_image_url:
+                await message.reply_photo(photo=product_image_url, caption=product_details)
+            else:
+                await message.reply(product_details)
 
         else:
             await message.reply("**Please Provide A Valid Amazon URL**")
