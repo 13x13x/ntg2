@@ -161,7 +161,7 @@ def get_short_amazon_link(asin):
         'Service': 'AWSECommerceService',
         'Operation': 'GetItemLinks',
         'AWSAccessKeyId': ACCESS_KEY,
-        'AssociateTag': ASSOCIATE_TAG,
+        'AssociateTag': {amazon_tag},
         'ResponseGroup': 'ItemLinks',
         'ItemId': asin,
         'Timestamp': datetime.datetime.utcnow().isoformat(),
