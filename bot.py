@@ -52,7 +52,7 @@ async def me_command(client, message):
         # Call the user_settings function to send the menu
         await user_settings(client, message)
     else:
-        await message.reply("**User settings not found*"")
+        await message.reply("**User settings not found**")
 
 @app.on_message(filters.command("start"))
 async def start(client, message):
