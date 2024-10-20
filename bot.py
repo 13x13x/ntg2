@@ -2,7 +2,6 @@ from pyrogram import Client, filters
 from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import re
-import aiohttp  # Use aiohttp
 import requests
 from bs4 import BeautifulSoup
 import asyncio
