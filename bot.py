@@ -198,7 +198,7 @@ async def scrape(client, message):
         user = users_collection.find_one({"user_id": user_id})
 
         if user.get('banned', False):  # Check if the user is banned
-            await message.reply("**You Are Banned � From Using This Bot**")
+            await message.reply("**You Are Banned 🚫 From Using This Bot**")
             return
 
         if not user:
