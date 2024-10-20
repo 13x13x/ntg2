@@ -15,6 +15,8 @@ from new import broadcast, ban_user, unban_user, user_stats
 
 from typing import List, Union
 
+from PIL import Image, ImageDraw, ImageFont
+
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 6290483448
