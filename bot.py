@@ -145,10 +145,12 @@ def scrape_amazon_product(url):
     else:
         return "**Product Name Not Found , Try Again**", None
 
-    # Price
-    price = soup.find('span', {'class': 'a-price-whole'})
-    if price:
-        price = price.get_text(strip=True).rstrip('.')
+    # Price (deal price)
+    price_tag = soup.find('span', {'class': 'a-price-whole'})
+    price = None
+    if price_tag:
+        # Extract only the numeric part of the price
+        price = price_tag.get_text(strip=True).split()[0].replace(',', '').rstrip('.')
     else:
         price = 'not found'
 
@@ -156,10 +158,10 @@ def scrape_amazon_product(url):
     mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
     mrp = None
     if mrp_tag:
-        # Find all spans in MRP tag and pick the highest value
+        # Extract all price values inside the MRP tag
         mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
         if mrp_values:
-            # Filter out per-unit pricing and pick the highest value
+            # Filter out any "per" unit values and select the highest valid MRP
             mrp_values_clean = [float(re.sub(r'[^\d.]', '', val.get_text(strip=True))) for val in mrp_values if "per" not in val.get_text(strip=True).lower()]
             if mrp_values_clean:
                 mrp = f"₹{max(mrp_values_clean):.2f}"
@@ -175,10 +177,10 @@ def scrape_amazon_product(url):
         price_value = float(price.replace(',', ''))
         mrp_value = float(mrp.replace('₹', '').replace(',', ''))
         discount = mrp_value - price_value
-        discount_percentage = (discount / mrp_value) * 100
+        discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
         discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
     except (ValueError, TypeError):
-        discount_text = '🏃🏻'
+        discount_text = 'Unable to Calculate Discount'
 
     # Product Image
     image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
@@ -188,7 +190,7 @@ def scrape_amazon_product(url):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n\n❌ **Regular Price:** **~~{mrp}/-~~**\n\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** **~~{mrp}/-~~**\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
     return product_details, product_image_url
 
