@@ -81,10 +81,10 @@ async def amz_command(client, message):
                         chat_id=message.chat.id,
                         photo=product_image_url,
                         caption=product_details,
-                        parse_mode='MarkdownV2'  # Ensure correct casing
+                        parse_mode='markdown'  # Ensure correct casing
                     )
                 else:
-                    await message.reply(product_details, parse_mode='MarkdownV2')
+                    await message.reply(product_details, parse_mode='markdown')
             else:
                 await message.reply("**Failed to retrieve product details.**")
         else:
@@ -107,7 +107,7 @@ def scrape_amazon_product(url, user):
     # Product name
     product_name = soup.find('span', {'id': 'productTitle'})
     if product_name:
-        product_name = re.escape(product_name.get_text(strip=True))  # Escape for markdownV2
+        product_name = re.escape(product_name.get_text(strip=True))  # Escape special characters for markdown
     else:
         return "**Product Name Not Found, Try Again**", None
 
@@ -148,16 +148,16 @@ def scrape_amazon_product(url, user):
         product_image_url = None
 
     # Final product details response
-    product_details = (f"🤯 **{product_name}**\n\n"
+    product_details = (f"🤯 *{product_name}*\n\n"
                        f"💥 **Discount: {discount_text} 🔥**\n"
-                       f"❌ **Regular Price:** **~~{mrp}/-~~**\n"
+                       f"❌ **Regular Price:** ~~{mrp}/-~~\n"
                        f"✅ **Deal Price: ₹{price}/-**\n\n"
-                       f"**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**")
+                       f"[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})")
 
     # Get the footer, if available
     footer = user.get('footer', '')  
     if footer:
-        product_details += f"\n\n**{footer}**"  # Append the footer to product details
+        product_details += f"\n\n*{footer}*"  # Append the footer to product details
     
     return product_details, product_image_url
 
