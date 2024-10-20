@@ -1,7 +1,6 @@
 pyrogram
 tgcrypto
-pillow==10.3.0
-motor
+aiohttp
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
 requests # or the latest version you're using
