@@ -2,7 +2,13 @@ from pyrogram import Client, filters
 from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import re
-import aiohttp  # Use aiohttp
+import hmac
+import base64
+import hashlib
+import datetime
+from urllib.parse import quote
+from pyrogram.types import Message
+from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
 import asyncio
@@ -17,6 +23,12 @@ from new import broadcast, ban_user, unban_user, user_stats
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 6290483448
+
+# Amazon ApI
+ACCESS_KEY = 'YOUR_AMAZON_ACCESS_KEY'
+SECRET_KEY = 'YOUR_AMAZON_SECRET_KEY'
+REGION = 'us-east-1'
+ENDPOINT = 'webservices.amazon.com'
 
 # Telegram API credentials
 api_id = 24972774
@@ -108,8 +120,22 @@ async def replace_tag(client, message):
             else:
                 updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
 
-            # Call the scrape_amazon_product function directly
-            product_details, product_image_url = scrape_amazon_product(updated_url)
+            # Extract the ASIN from the URL (Amazon Standard Identification Number)
+            asin = extract_asin_from_url(updated_url)  # Custom function to extract ASIN from URL
+
+            if not asin:
+                await message.reply("**Unable to extract ASIN from URL. Please provide a valid Amazon product URL.**")
+                return
+
+            # Generate the short URL using the Amazon API
+            short_url = get_short_amazon_link(asin)
+
+            if not short_url:
+                await message.reply("**Failed to generate short URL.**")
+                return
+
+            # Call the scrape_amazon_product function to get product details
+            product_details, product_image_url = scrape_amazon_product(short_url)
 
             footer = user.get('footer', '')  # Get the footer, if available
             if footer:
@@ -125,11 +151,46 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz command: {e}**")
 
-# Scraper function to fetch Amazon product data
-import re
-import requests
-from bs4 import BeautifulSoup
+# Function to extract ASIN from the URL
+def extract_asin_from_url(url):
+    # Extract the ASIN (Amazon Standard Identification Number) from the given URL
+    match = re.search(r'/([A-Z0-9]{10})(?:[/?]|$)', url)
+    return match.group(1) if match else None
 
+# Function to generate short Amazon link using Amazon API
+def get_short_amazon_link(asin):
+    parameters = {
+        'Service': 'AWSECommerceService',
+        'Operation': 'GetItemLinks',
+        'AWSAccessKeyId': ACCESS_KEY,
+        'AssociateTag': ASSOCIATE_TAG,
+        'ResponseGroup': 'ItemLinks',
+        'ItemId': asin,
+        'Timestamp': datetime.datetime.utcnow().isoformat(),
+        'Version': '2013-08-01'
+    }
+
+    signature = sign_request(parameters, SECRET_KEY)
+    parameters['Signature'] = signature
+
+    response = requests.get(f"https://{ENDPOINT}/onca/xml", params=parameters)
+
+    if response.status_code == 200:
+        # Parse and return the short URL from the response
+        # This assumes that the response contains the shortened URL
+        return response.text  # Adjust this based on actual response format
+    else:
+        return None
+
+# Signing the request (same as before)
+def sign_request(parameters, secret_key):
+    sorted_params = sorted(parameters.items())
+    canonical_query_string = '&'.join([f"{quote(k, safe='')}={quote(v, safe='')}" for k, v in sorted_params])
+    string_to_sign = f"GET\n{ENDPOINT}\n/onca/xml\n{canonical_query_string}"
+    signature = hmac.new(secret_key.encode('utf-8'), string_to_sign.encode('utf-8'), hashlib.sha256).digest()
+    return base64.b64encode(signature).decode()
+
+# scrape_amazon_product function remains unchanged
 def scrape_amazon_product(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
