@@ -182,13 +182,19 @@ async def handle_ban(client, message):
 async def handle_unban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
 
+def get_font(size, font_path=None):
+    """Returns a PIL font object based on the provided size and font path."""
+    if font_path and os.path.exists(font_path):
+        return ImageFont.truetype(font_path, size)  # Load the TTF font if path is provided
+    else:
+        return ImageFont.load_default()  # Fallback to default font
 
 async def get_userinfo_img(user_id, profile_path=None):
     # Create a background image with YouTube thumbnail size
     bg = Image.new("RGB", (1280, 720), (30, 30, 30))  # 1280x720 pixels
     
     # Add user's profile picture if provided
-    if profile_path:
+    if profile_path and os.path.exists(profile_path):
         try:
             img = Image.open(profile_path).convert("RGBA")
             mask = Image.new("L", img.size, 0)
@@ -204,8 +210,15 @@ async def get_userinfo_img(user_id, profile_path=None):
 
     # Draw user ID on the image
     img_draw = ImageDraw.Draw(bg)
-    font = ImageFont.load_default()  # Load the default font; customize if needed
-    img_draw.text((500, 600), text=f"User ID: {user_id}", fill=(255, 255, 255), font=font)
+    
+    # Get the font for the user ID text
+    font_path = None  # Set this if you have a specific font path
+    img_draw.text(
+        (529, 627),
+        text=str(user_id).upper(),
+        font=get_font(46, font_path),  # Use the get_font function
+        fill=(255, 255, 255),
+    )
 
     # Save the image
     path = f"./userinfo_img_{user_id}.png"
@@ -239,7 +252,11 @@ async def start(client, message):
     ])
 
     # Generate user's image (provide a path for the profile image)
-    profile_path = None  # Set this to the user's profile image path if available
+    profile_path = None  # Fetch or set the user's profile image path if available
+    if message.from_user.photo:
+        profile_path = f"./profile_pics/{user_id}.jpg"  # Adjust the path as necessary
+        await client.download_media(message.from_user.photo.big_file_id, profile_path)
+
     user_image_path = await get_userinfo_img(user_id, profile_path)
 
     try:
@@ -247,6 +264,7 @@ async def start(client, message):
         await message.reply_photo(photo=user_image_path, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
+
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
