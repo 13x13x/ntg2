@@ -203,7 +203,7 @@ async def get_userinfo_img(user_id, profile_path=None):
 
             circular_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
             circular_img.paste(img, (0, 0), mask)
-            resized = circular_img.resize((400, 400), Image.ANTIALIAS)  # Use ANTIALIAS for better quality
+            resized = circular_img.resize((400, 400), Image.LANCZOS)  # Use LANCZOS for better quality
             bg.paste(resized, (440, 50), resized)  # Center the image in the thumbnail
         except Exception as e:
             print(f"Error processing image: {e}")
@@ -264,7 +264,6 @@ async def start(client, message):
         await message.reply_photo(photo=user_image_path, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
-
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
