@@ -4,6 +4,15 @@ from PIL import Image, ImageDraw, ImageFont
 from pymongo import MongoClient
 import os
 
+# Initialize MongoDB client
+try:
+    client = MongoClient(MONGO_URI)
+    db = client['lanja_db']
+    users_collection = db['users']
+    print("Connected to MongoDB")  # Debugging line
+except ServerSelectionTimeoutError as e:
+    print(f"Could not connect to MongoDB: {e}")
+
 async def get_userinfo_img(user_id, profile_path=None):
     # Create a background image
     bg = Image.new("RGB", (1280, 720), (30, 30, 30))
