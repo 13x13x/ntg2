@@ -88,7 +88,7 @@ async def get_userinfo_img(user_id, profile_path=None):
     img_draw.text(
         (529, 670),  # Adjusted position for user ID (2 inches down approximately)
         text=str(user_id).upper(),
-        font=get_font(60, font_path),  # Increased font size for user ID
+        font=get_font(200, font_path),  # Increased font size for user ID
         fill=(255, 255, 255),  # Color set to white
     )
 
@@ -389,7 +389,7 @@ async def remove_footer(client, callback_query):
 # Starting the bot
 async def main():
     await app.start()
-    print("Bot started..")
+    print("Bot started Bro..")
     # Keep the bot running
     while True:
         await asyncio.sleep(1)
