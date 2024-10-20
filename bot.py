@@ -43,6 +43,17 @@ app = Client(
     workdir="./sessions"
 )
 
+@app.on_message(filters.command("me"))
+async def me_command(client, message):
+    user_id = message.from_user.id
+    user = users_collection.find_one({"user_id": user_id})
+
+    if user:
+        # Call the user_settings function to send the menu
+        await user_settings(client, message)
+    else:
+        await message.reply("**User settings not found*"")
+
 @app.on_message(filters.command("start"))
 async def start(client, message):
     user_id = message.from_user.id
@@ -125,10 +136,6 @@ async def replace_tag(client, message):
         await message.reply(f"**Error in /amz command: {e}**")
 
 # Scraper function to fetch Amazon product data
-import re
-import requests
-from bs4 import BeautifulSoup
-
 def scrape_amazon_product(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
