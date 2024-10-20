@@ -1,6 +1,6 @@
 pyrogram
 tgcrypto
-Pillow
+pillow
 motor
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
