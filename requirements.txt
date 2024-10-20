@@ -1,6 +1,6 @@
 pyrogram
 tgcrypto
-pillow
+pillow==10.3.0
 motor
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
