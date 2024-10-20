@@ -89,12 +89,12 @@ async def replace_tag(client, message):
         return
 
     if not user:
-        await message.reply("**User Not Found In The Database. Please /start The Bot Again**")
+        await message.reply("**Please /start The Bot Again**")
         return
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please Add Your Amazon Tag From The User Settings Using The /start 'Set,Edit Tag' Buttons**")
+        await message.reply("**Please Add Your Amazon Tag From The User Settings Using The /start**")
         return
 
     try:
@@ -178,7 +178,7 @@ def scrape_amazon_product(url):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬𝗡𝗢𝗪]({url})**"
+    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** **~~{mrp}/-~~**\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
     return product_details, product_image_url
 
