@@ -1,4 +1,3 @@
-from PIL import Image, ImageDraw, ImageFont
 from pyrogram import Client, filters
 from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,9 +12,6 @@ import nest_asyncio
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from new import broadcast, ban_user, unban_user, user_stats
-
-from typing import List, Union
-
 
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
