@@ -1,5 +1,4 @@
 pyrogram # or the latest version you're using
-tgcyrpto
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
 requests # or the latest version you're using
