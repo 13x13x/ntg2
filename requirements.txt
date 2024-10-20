@@ -1,4 +1,4 @@
-pyrogram==2.0.106
+pyrogram
 tgcrypto
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
