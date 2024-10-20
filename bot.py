@@ -3,6 +3,7 @@ from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import re
 import aiohttp  # Use aiohttp
+import requests
 from bs4 import BeautifulSoup
 import asyncio
 from asyncio import sleep
@@ -79,11 +80,11 @@ async def start(client, message):
         print(f"Error sending message: {e}")
 
 @app.on_message(filters.command("amz") & filters.private)
-async def amz_command(client, message):
+async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
-    if user.get('banned', False):
+    if user.get('banned', False):  # Check if the user is banned
         await message.reply("**You Are Banned 🚫 From Using This Bot**")
         return
 
@@ -96,77 +97,127 @@ async def amz_command(client, message):
         await message.reply("**Please Add Your Amazon Tag From The User Settings Using The /start 'Set,Edit Tag' Buttons**")
         return
 
-    if len(message.command) > 1:
-        url = message.command[1]
-        updated_url = url + f"&tag={amazon_tag}" if "tag=" not in url else re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)
-        
-        try:
-            product_details, product_image_url = await scrape_amazon_product(updated_url, user)
+    try:
+        if len(message.command) > 1:
+            url = message.command[1]
+            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
 
-            if product_details:
-                if product_image_url:
-                    await client.send_photo(chat_id=message.chat.id, photo=product_image_url, caption=product_details, parse_mode='html')
-                else:
-                    await message.reply(product_details, parse_mode='html')
+            # Replace existing tag or add new one
+            if "tag=" in url:
+                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
             else:
-                await message.reply("**Failed to retrieve product details.**")
-        except Exception as e:
-            await message.reply(f"**Error in /amz command: {str(e)}**")
-    else:
-        await message.reply("**Please Provide A Valid Amazon URL**")
+                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
 
+            # Automatically call the /run command with the updated URL
+            new_command = f"**/amzpd {updated_url}**"
+            sent_message = await app.send_message(chat_id=message.chat.id, text=new_command)
 
-async def scrape_amazon_product(url, user):
+            # Wait for 3 seconds, then delete the message
+            await asyncio.sleep(10)
+            await app.delete_messages(chat_id=message.chat.id, message_ids=sent_message.id)
+
+        else:
+            await message.reply("**Please Provide A Valid Amazon URL**")
+    except Exception as e:
+        await message.reply(f"**Error in /amz command: {e}**")
+
+# Scraper function to fetch Amazon product data
+def scrape_amazon_product(url):
     headers = {
-        'User-Agent': 'Mozilla/5.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
         'Accept-Language': 'en-US, en;q=0.5'
     }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        return f"Failed to retrieve page, status code: {response.status_code}", None
+
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Product name
+    product_name = soup.find('span', {'id': 'productTitle'})
+    if product_name:
+        product_name = product_name.get_text(strip=True)
+    else:
+        return "**Product Name Not Found , Try Again**", None
+
+    # Price
+    price = soup.find('span', {'class': 'a-price-whole'})
+    if price:
+        price = price.get_text(strip=True).rstrip('.')
+    else:
+        price = 'not found'
+
+    # MRP (if available)
+    mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
+    mrp = None
+    if mrp_tag:
+        mrp_span = mrp_tag.find('span', {'class': 'a-offscreen'})
+        if mrp_span:
+            mrp = mrp_span.get_text(strip=True)
+        else:
+            mrp = 'MRP not found'
+    else:
+        mrp = 'not found'
+
+    # Calculate discount
+    try:
+        price_value = float(price.replace(',', ''))
+        mrp_value = float(mrp.replace('₹', '').replace(',', ''))
+        discount = mrp_value - price_value
+        discount_percentage = (discount / mrp_value) * 100
+        discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
+    except (ValueError, TypeError):
+        discount_text = 'Unable to Calculate Discount'
+
+    # Product Image
+    image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
+    if image_tag and image_tag.img:
+        product_image_url = image_tag.img['src'].replace('_UX75_', '_UX500_').replace('_SX38_', '_SL1000_')
+    else:
+        product_image_url = None
+
+    # Final product details response
+    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** ~~{mrp}/-~~\n✅ **Deal Price: ₹{price}/-**\n\n**[]({url})**"
     
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as response:
-            if response.status != 200:
-                return f"Failed to retrieve page, status code: {response.status}", None
+    return product_details, product_image_url
 
-            content = await response.text()
-            soup = BeautifulSoup(content, 'html.parser')
+# Command to scrape Amazon product
+@app.on_message(filters.command("amzpd") & filters.private)
+async def scrape(client, message):
+    try:
+        if len(message.command) < 2:
+            await message.reply("**Please Provide A Valid Amazon URL**")
+            return
 
-            product_name = soup.find('span', {'id': 'productTitle'})
-            if product_name:
-                product_name = re.escape(product_name.get_text(strip=True))
-            else:
-                return "**Product Name Not Found, Try Again**", None
+        url = message.command[1]
+        product_details, product_image_url = scrape_amazon_product(url)
 
-            price = soup.find('span', {'class': 'a-price-whole'})
-            price = price.get_text(strip=True).rstrip('.') if price else 'not found'
+        # Fetch user info from the database using user_id
+        user_id = message.from_user.id  # Get the user ID from the message
+        user = users_collection.find_one({"user_id": user_id})
 
-            mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
-            mrp = mrp_tag.find('span', {'class': 'a-offscreen'}).get_text(strip=True) if mrp_tag else 'not found'
+        if user.get('banned', False):  # Check if the user is banned
+            await message.reply("**You Are Banned � From Using This Bot**")
+            return
 
-            discount_text = 'Unable to Calculate Discount'
-            try:
-                price_value = float(price.replace(',', ''))
-                mrp_value = float(mrp.replace('₹', '').replace(',', ''))
-                discount = mrp_value - price_value
-                discount_percentage = (discount / mrp_value) * 100
-                discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
-            except (ValueError, TypeError):
-                pass
+        if not user:
+            await message.reply("**User Not Found In The Database Please /start the bot again **")
+            return
 
-            image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
-            product_image_url = image_tag.img['src'].replace('_UX75_', '_UX500_') if image_tag and image_tag.img else None
+        footer = user.get('footer', '')  # Get the footer, if available
+        if footer:
+            product_details += f"\n\n**{footer}**"  # Append the footer to product details
 
-            product_details = (f"🤯 <b>{product_name}</b>\n\n"
-                               f"💥 <b>Discount: {discount_text} 🔥</b>\n"
-                               f"❌ <b>Regular Price:</b> <s>{mrp}/-</s>\n"
-                               f"✅ <b>Deal Price: ₹{price}/-</b>\n\n"
-                               f"<a href='{url}'>🛒 𝗕𝗨𝗬 𝗡𝗢𝗪</a>")
+        if product_image_url:
+            await message.reply_photo(photo=product_image_url, caption=product_details)
+        else:
+            await message.reply(product_details)
 
-            footer = user.get('footer', '')
-            if footer:
-                product_details += f"\n\n<b>{footer}</b>"
-
-            return product_details, product_image_url
-
+    except Exception as e:
+        await message.reply(f"**An error occurred while scraping: {e}**")
+            
+ 
 @app.on_message(filters.command("bcast") & filters.user(OWNER_ID))
 async def handle_broadcast(client, message):
     if message.from_user.id != OWNER_ID:
