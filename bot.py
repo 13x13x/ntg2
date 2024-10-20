@@ -184,6 +184,34 @@ async def handle_unban(client, message):
 async def handle_user_stats(client, message):
     await user_stats(client, message, users_collection, OWNER_ID)
 
+async def get_userinfo_img(user_id, profile_path=None):
+    # Create a background image
+    bg = Image.new("RGB", (800, 800), (30, 30, 30))
+    
+    # Add user's profile picture if provided
+    if profile_path:
+        try:
+            img = Image.open(profile_path).convert("RGBA")
+            mask = Image.new("L", img.size, 0)
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse([(0, 0), img.size], fill=255)
+
+            circular_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            circular_img.paste(img, (0, 0), mask)
+            resized = circular_img.resize((400, 400))
+            bg.paste(resized, (200, 100), resized)
+        except Exception as e:
+            print(f"Error processing image: {e}")
+
+    # Draw user ID on the image
+    img_draw = ImageDraw.Draw(bg)
+    font = ImageFont.load_default()  # Load the default font; customize if needed
+    img_draw.text((300, 550), text=f"User ID: {user_id}", fill=(255, 255, 255), font=font)
+
+    # Save the image
+    path = f"./userinfo_img_{user_id}.png"
+    bg.save(path)
+    return path
 
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -211,15 +239,15 @@ async def start(client, message):
         ]
     ])
 
-    # Define the image URL or path (can be a URL or a local file path)
-    welcome_image_url = "https://envs.sh/puF.jpg"  # Replace with your image URL
+    # Generate user's image (if you have a path for it)
+    profile_path = None  # Set this to the user's profile image path if available
+    user_image_path = await get_userinfo_img(user_id, profile_path)
 
     try:
         # Send welcome image with caption (optional)
-        await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
+        await message.reply_photo(photo=user_image_path, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
-        emoji_background: Union[int, List[int]] = None
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
