@@ -156,11 +156,17 @@ def scrape_amazon_product(url):
     mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
     mrp = None
     if mrp_tag:
-        mrp_span = mrp_tag.find('span', {'class': 'a-offscreen'})
-        if mrp_span:
-            mrp = mrp_span.get_text(strip=True)
+        # Find all spans in MRP tag and pick the highest value
+        mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
+        if mrp_values:
+            # Filter out per-unit pricing and pick the highest value
+            mrp_values_clean = [float(re.sub(r'[^\d.]', '', val.get_text(strip=True))) for val in mrp_values if "per" not in val.get_text(strip=True).lower()]
+            if mrp_values_clean:
+                mrp = f"₹{max(mrp_values_clean):.2f}"
+            else:
+                mrp = 'MRP not found'
         else:
-            mrp = 'MRP not found'
+            mrp = 'not found'
     else:
         mrp = 'not found'
 
@@ -172,7 +178,7 @@ def scrape_amazon_product(url):
         discount_percentage = (discount / mrp_value) * 100
         discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
     except (ValueError, TypeError):
-        discount_text = 'Unable to Calculate Discount'
+        discount_text = '🏃🏻'
 
     # Product Image
     image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
@@ -182,7 +188,7 @@ def scrape_amazon_product(url):
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n❌ **Regular Price:** **~~{mrp}/-~~**\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n\n❌ **Regular Price:** **~~{mrp}/-~~**\n\n✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
     return product_details, product_image_url
 
