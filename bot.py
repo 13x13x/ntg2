@@ -235,6 +235,11 @@ async def handle_ban(client, message):
 async def handle_unban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
 
+@app.on_message(filters.command("ls") & filters.private)
+async def handle_ls(client, message):
+    await user_stats(client, message, users_collection, OWNER_ID)
+    
+
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
 async def user_settings(client, callback_query):
