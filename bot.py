@@ -1,4 +1,3 @@
-from PIL import Image, ImageDraw, ImageFont
 from pyrogram import Client, filters
 from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,6 +12,8 @@ import nest_asyncio
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from new import broadcast, ban_user, unban_user, user_stats
+
+from yes import start_command, get_userinfo_img
 
 from typing import List, Union
 
@@ -46,6 +47,10 @@ app = Client(
     bot_token=bot_token,
     workdir="./sessions"
 )
+
+@app.on_message(filters.command("start"))
+async def start(client, message):
+    await start_command(client, message)
 
 @app.on_message(filters.command("amz") & filters.private)
 async def amz_command(client, message):
@@ -181,89 +186,6 @@ async def handle_ban(client, message):
 @app.on_message(filters.command("unban") & filters.private)
 async def handle_unban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
-
-def get_font(size, font_path=None):
-    """Returns a PIL font object based on the provided size and font path."""
-    if font_path and os.path.exists(font_path):
-        return ImageFont.truetype(font_path, size)  # Load the TTF font if path is provided
-    else:
-        return ImageFont.load_default()  # Fallback to default font
-
-async def get_userinfo_img(user_id, profile_path=None):
-    # Create a background image with YouTube thumbnail size
-    bg = Image.new("RGB", (1280, 720), (30, 30, 30))  # 1280x720 pixels
-    
-    # Add user's profile picture if provided
-    if profile_path and os.path.exists(profile_path):
-        try:
-            img = Image.open(profile_path).convert("RGBA")
-            mask = Image.new("L", img.size, 0)
-            draw = ImageDraw.Draw(mask)
-            draw.ellipse([(0, 0), img.size], fill=255)
-
-            circular_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
-            circular_img.paste(img, (0, 0), mask)
-            resized = circular_img.resize((400, 400), Image.LANCZOS)  # Use LANCZOS for better quality
-            bg.paste(resized, (440, 50), resized)  # Center the image in the thumbnail
-        except Exception as e:
-            print(f"Error processing image: {e}")
-
-    # Draw user ID on the image
-    img_draw = ImageDraw.Draw(bg)
-    
-    # Get the font for the user ID text
-    font_path = None  # Set this if you have a specific font path
-    img_draw.text(
-        (529, 627),
-        text=str(user_id).upper(),
-        font=get_font(46, font_path),  # Use the get_font function
-        fill=(255, 255, 255),
-    )
-
-    # Save the image
-    path = f"./userinfo_img_{user_id}.png"
-    bg.save(path)
-    return path
-
-@app.on_message(filters.command("start"))
-async def start(client, message):
-    user_id = message.from_user.id
-
-    # Check if user exists in the database
-    user = users_collection.find_one({"user_id": user_id})
-    if not user:
-        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
-        print(f"User {user_id} added to the database")  # Debugging line
-    else:
-        print(f"User {user_id} already exists in the database")  # Debugging line
-
-    if user and user.get('banned', False):  # Check if the user is banned
-        await message.reply("**You Are Banned 🚫 From Using This Bot**")
-        return
-
-    # Welcome text without formatting
-    welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
-
-    # Create the inline keyboard
-    keyboard = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs", callback_data="user_settings")
-        ]
-    ])
-
-    # Generate user's image (provide a path for the profile image)
-    profile_path = None  # Fetch or set the user's profile image path if available
-    if message.from_user.photo:
-        profile_path = f"./profile_pics/{user_id}.jpg"  # Adjust the path as necessary
-        await client.download_media(message.from_user.photo.big_file_id, profile_path)
-
-    user_image_path = await get_userinfo_img(user_id, profile_path)
-
-    try:
-        # Send welcome image with caption (optional)
-        await message.reply_photo(photo=user_image_path, caption=welcome_text, reply_markup=keyboard)
-    except Exception as e:
-        print(f"Error sending message: {e}")
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
