@@ -13,6 +13,8 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from new import broadcast, ban_user, unban_user, user_stats
 
+from typing import List, Union
+
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 6290483448
@@ -217,6 +219,7 @@ async def start(client, message):
         await message.reply_photo(photo=welcome_image_url, caption=welcome_text, reply_markup=keyboard)
     except Exception as e:
         print(f"Error sending message: {e}")
+        emoji_background: Union[int, List[int]] = None
 
 # User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
