@@ -18,6 +18,7 @@ from pyrogram.errors import PeerIdInvalid  # Import the specific error
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 6290483448
+LOG_CHANNEL = -1001998686767
 
 # Telegram API credentials
 api_id = 24972774
@@ -97,6 +98,18 @@ async def start(client, message):
     if not user:
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} Added in the database")  # Debugging line
+        
+        # Notify the log channel about the new user
+        try:
+            if message.from_user.username:
+                username = message.from_user.username
+            else:
+                username = "None"
+            notification_text = f"**#NewUser from Ultraamz 😘**\nUserID: `{user_id}`\nUsername: @{username}"
+            await client.send_message(LOG_CHANNEL, notification_text)
+        except Exception as e:
+            print(f"Error sending notification to log channel: {e}")
+
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
