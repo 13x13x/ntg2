@@ -20,7 +20,7 @@ OWNER_ID = 6290483448
 # Telegram API credentials
 api_id = 24972774
 api_hash = '188f227d40cdbfaa724f1f3cd059fd8b'
-bot_token = '6401043461:AAH5GrnSCgbCldGRdLy-SDvhcK4JzgozI3Y'
+bot_token = '7904938522:AAGQHW5RJ1t_3Bw3sXlg_sSr_Md2Mb4el6U'
 
 # Initialize MongoDB client
 try:
@@ -282,7 +282,7 @@ async def user_settings(client, callback_query):
             InlineKeyboardButton("ʀᴇᴍᴏᴠᴇ ғᴏᴏᴛᴇʀ", callback_data="remove_footer")
         ],
         [
-            InlineKeyboardButton("ʙᴏᴛ ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ", url="https://t.me/Painfully")  # Replace with your channel link
+            InlineKeyboardButton("ʙᴏᴛ ᴜᴘᴅᴀᴛᴇs", url="https://t.me/Ultraamzinfo")  # Replace with your channel link
         ]
     ])
 
