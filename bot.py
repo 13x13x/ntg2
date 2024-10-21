@@ -13,6 +13,8 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from new import broadcast, ban_user, unban_user, user_stats
 
+from pyrogram.errors import PeerIdInvalid  # Import the specific error
+
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://Puka12:puka12@cluster0.4xmyiyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 6290483448
@@ -43,8 +45,9 @@ app = Client(
     workdir="./sessions"
 )
 
+# Command to handle /info and save user details to info.txt
 @app.on_message(filters.command("info") & filters.user(OWNER_ID))  # OWNER_ID is your admin user ID
-async def info(client, message):
+async def me(client, message):
     # Fetch all users from the database
     users = users_collection.find()
 
@@ -55,13 +58,17 @@ async def info(client, message):
             # Get the user_id from the database
             user_id = user.get("user_id", "None")
 
-            # If the username is not in the database, use the message's from_user data or set it as "None"
+            # If the username is not in the database, attempt to fetch it from Telegram
             if user.get("username"):
                 username = user["username"]
             else:
-                # Find user from current message context if not already in DB
-                fetched_user = await client.get_users(user_id)
-                username = fetched_user.username or "None"
+                try:
+                    # Try to fetch the username from Telegram
+                    fetched_user = await client.get_users(user_id)
+                    username = fetched_user.username or "None"
+                except PeerIdInvalid:
+                    # If the user cannot be found, default to "None"
+                    username = "None"
 
             # Get other details from the database
             amazon_tag = user.get("amazon_tag", "None")
@@ -75,7 +82,7 @@ async def info(client, message):
     await client.send_document(
         message.chat.id,
         document="info.txt",
-        caption="Here is the details of all users."
+        caption="**Here are the details of all users**"
     )
 
     # Optionally remove the file after sending it
