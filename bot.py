@@ -246,12 +246,12 @@ async def handle_broadcast(client, message):
     lel = await message.reply_text("**⚡️ Processing...**")
     await broadcast(client, message, users_collection, lel)
 
-@app.on_message(filters.command("ban") & filters.private)
-async def handle_ban(client, message):
+@app.on_message(filters.command("fban") & filters.private)
+async def handle_fban(client, message):
     await ban_user(client, message, users_collection, OWNER_ID)
 
-@app.on_message(filters.command("unban") & filters.private)
-async def handle_unban(client, message):
+@app.on_message(filters.command("funban") & filters.private)
+async def handle_funban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
 
 @app.on_message(filters.command("ls") & filters.private)
