@@ -88,7 +88,7 @@ async def replace_tag(client, message):
         return
 
     if not user:
-        await message.reply("**🙂 ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
+        await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
         return
 
     amazon_tag = user.get('amazon_tag')
@@ -221,7 +221,7 @@ async def scrape(client, message):
             return
 
         if not user:
-            await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ᴛʜɪs ʙᴏᴛ**")
+            await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
             return
 
         footer = user.get('footer', '')  # Get the footer, if available
