@@ -48,7 +48,7 @@ app = Client(
 )
 
 def get_font(size, font_path=None):
-    ""Ntg!!""
+    ""Ntg""
     if font_path and os.path.exists(font_path):
         return ImageFont.truetype(font_path, size)  # Load the TTF font if path is provided
     else:
