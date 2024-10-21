@@ -243,7 +243,7 @@ async def handle_broadcast(client, message):
         await message.reply("**You are not authorized to use this command**")
         return
     
-    lel = await message.reply_text("`⚡️ Processing...`")
+    lel = await message.reply_text("**⚡️ Processing...**")
     await broadcast(client, message, users_collection, lel)
 
 @app.on_message(filters.command("ban") & filters.private)
@@ -299,13 +299,21 @@ async def user_settings(client, callback_query):
         reply_markup=keyboard
     )
 
+# vaild 
+
+def is_valid_amazon_tag(tag):
+    # Define the regex pattern for a valid Amazon tag
+    # This example assumes the tag can include letters, numbers, and hyphens.
+    pattern = r'^[a-zA-Z0-9-]+$'
+    return re.match(pattern, tag) is not None
+
 # Handle Add Tag (Prompt user to send the Amazon tag)
 @app.on_callback_query(filters.regex("add_tag"))
 async def add_tag(client, callback_query):
     user_id = callback_query.from_user.id
     # Set awaiting_tag to True for this user
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_tag": True}})
-    await callback_query.message.reply("**ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     await sleep(60)
 
@@ -314,7 +322,7 @@ async def add_tag(client, callback_query):
 
     if user_data and user_data.get("awaiting_tag"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_tag": False}})
-        await callback_query.message.reply("**ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
 
 @app.on_callback_query(filters.regex("add_footer"))
@@ -325,7 +333,7 @@ async def add_footer(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": True}})
 
     # Send initial message to prompt the user to send the footer text
-    await callback_query.message.reply("**ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `share & join @channel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `share & join @channel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     # Wait for 60 seconds
     await sleep(60)
@@ -335,7 +343,7 @@ async def add_footer(client, callback_query):
 
     if user_data and user_data.get("awaiting_footer"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": False}})
-        await callback_query.message.reply("**ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
 # Consolidated capture handler for tag and footer
 @app.on_message(filters.text & filters.private)
@@ -346,16 +354,19 @@ async def capture_tag_or_footer(client, message):
     if user:
         # Check if awaiting a tag
         if user.get('awaiting_tag'):
-            # Save the Amazon tag and reset awaiting_tag to False
-            users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": message.text, "awaiting_tag": False}})
-            await message.reply("**ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+            if is_valid_amazon_tag(message.text):
+                # Save the Amazon tag and reset awaiting_tag to False
+                users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": message.text, "awaiting_tag": False}})
+                await message.reply("**😘 ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+            else:
+                await message.reply("**🥴 ɪɴᴠᴀʟɪᴅ ᴛᴀɢ ғᴏʀᴍᴀᴛ**")
             return
 
         # Check if awaiting a footer
         if user.get('awaiting_footer'):
             # Save the footer and reset awaiting_footer to False
             users_collection.update_one({"user_id": user_id}, {"$set": {"footer": message.text, "awaiting_footer": False}})
-            await message.reply("**ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+            await message.reply("**😘 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             return
 
 # Handle Remove Tag
@@ -363,7 +374,7 @@ async def capture_tag_or_footer(client, message):
 async def remove_tag(client, callback_query):
     user_id = callback_query.from_user.id
     users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": None}})
-    await callback_query.answer("ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
+    await callback_query.answer("🙃 ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
 
 # Handle Remove Footer
@@ -371,7 +382,7 @@ async def remove_tag(client, callback_query):
 async def remove_footer(client, callback_query):
     user_id = callback_query.from_user.id
     users_collection.update_one({"user_id": user_id}, {"$set": {"footer": None}})
-    await callback_query.answer("ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
+    await callback_query.answer("🙃 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
 
 # Starting the bot
