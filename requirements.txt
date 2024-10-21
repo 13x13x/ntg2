@@ -1,10 +1,3 @@
-pyrogram
-tgcrypto
-h11
-pyTelegramBotAPI
-python-dotenv
-lxml
-aiohttp
 pymongo    # or the latest version you're using
 beautifulsoup4  # or the latest version you're using
 requests # or the latest version you're using
