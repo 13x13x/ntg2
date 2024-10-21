@@ -52,9 +52,18 @@ async def info(client, message):
     with open("info.txt", "w") as f:
         count = 1
         for user in users:
-            # Get details of each user
-            username = user.get("username", "None")
+            # Get the user_id from the database
             user_id = user.get("user_id", "None")
+
+            # If the username is not in the database, use the message's from_user data or set it as "None"
+            if user.get("username"):
+                username = user["username"]
+            else:
+                # Find user from current message context if not already in DB
+                fetched_user = await client.get_users(user_id)
+                username = fetched_user.username or "None"
+
+            # Get other details from the database
             amazon_tag = user.get("amazon_tag", "None")
             footer = user.get("footer", "None")
 
@@ -122,7 +131,7 @@ async def replace_tag(client, message):
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
+        await message.reply("**💀 ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
         return
 
     try:
