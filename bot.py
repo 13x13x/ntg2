@@ -56,7 +56,7 @@ async def start(client, message):
         print(f"User {user_id} already exists in the database")  # Debugging line
 
     if user and user.get('banned', False):  # Check if the user is banned
-        await message.reply("**You Are Banned 🚫 From Using This Bot**")
+        await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
         return
 
     # Welcome text without formatting
@@ -84,11 +84,11 @@ async def replace_tag(client, message):
     user = users_collection.find_one({"user_id": user_id})
 
     if user.get('banned', False):  # Check if the user is banned
-        await message.reply("**You Are Banned 🚫 From Using This Bot**")
+        await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
         return
 
     if not user:
-        await message.reply("**Please /start The Bot Again**")
+        await message.reply("****")
         return
 
     amazon_tag = user.get('amazon_tag')
@@ -217,7 +217,7 @@ async def scrape(client, message):
         user = users_collection.find_one({"user_id": user_id})
 
         if user.get('banned', False):  # Check if the user is banned
-            await message.reply("**You Are Banned 🚫 From Using This Bot**")
+            await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
             return
 
         if not user:
