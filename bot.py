@@ -139,7 +139,7 @@ async def me(client, message):
         print(f"User {user_id} already exists in the database")  # Debugging line
 
     if user and user.get('banned', False):  # Check if the user is banned
-        await message.reply("**You Are Banned 🚫 From Using This Bot**")
+        await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
         return
 
     # Welcome text without formatting
@@ -225,7 +225,7 @@ async def start(client, message):
                 username = message.from_user.username
             else:
                 username = "None"
-            notification_text = f"**#NewUser from Ultraamz 😘**\nUserID: `{user_id}`\nUsername: @{username}"
+            notification_text = f"**#NewUser from Ultraamz 😘**\n**UserID:** `{user_id}`\n**Username: @{username}**"
             await client.send_message(LOG_CHANNEL, notification_text)
         except Exception as e:
             print(f"Error sending notification to log channel: {e}")
