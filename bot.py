@@ -349,13 +349,14 @@ async def capture_tag_or_footer(client, message):
             # Save the Amazon tag and reset awaiting_tag to False
             users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": message.text, "awaiting_tag": False}})
             await message.reply("**ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
-         # Sleep for 10 seconds
+            return
+
         # Check if awaiting a footer
-        elif user.get('awaiting_footer'):
+        if user.get('awaiting_footer'):
             # Save the footer and reset awaiting_footer to False
             users_collection.update_one({"user_id": user_id}, {"$set": {"footer": message.text, "awaiting_footer": False}})
             await message.reply("**ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
-
+            return
 
 # Handle Remove Tag
 @app.on_callback_query(filters.regex("remove_tag"))
