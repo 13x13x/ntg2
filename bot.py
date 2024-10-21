@@ -43,6 +43,35 @@ app = Client(
     workdir="./sessions"
 )
 
+@app.on_message(filters.command("info") & filters.user(OWNER_ID))  # OWNER_ID is your admin user ID
+async def info(client, message):
+    # Fetch all users from the database
+    users = users_collection.find()
+
+    # Create or open the info.txt file in write mode
+    with open("info.txt", "w") as f:
+        count = 1
+        for user in users:
+            # Get details of each user
+            username = user.get("username", "None")
+            user_id = user.get("user_id", "None")
+            amazon_tag = user.get("amazon_tag", "None")
+            footer = user.get("footer", "None")
+
+            # Write the user details in the required format
+            f.write(f"{count}. {username} {user_id} {amazon_tag} {footer}\n")
+            count += 1
+
+    # Send the file to the bot
+    await client.send_document(
+        message.chat.id,
+        document="info.txt",
+        caption="Here is the details of all users."
+    )
+
+    # Optionally remove the file after sending it
+    os.remove("info.txt")
+
 @app.on_message(filters.command("start"))
 async def start(client, message):
     user_id = message.from_user.id
@@ -254,8 +283,8 @@ async def handle_fban(client, message):
 async def handle_funban(client, message):
     await unban_user(client, message, users_collection, OWNER_ID)
 
-@app.on_message(filters.command("ls") & filters.private)
-async def handle_ls(client, message):
+@app.on_message(filters.command("fusers") & filters.private)
+async def handle_fusers(client, message):
     await user_stats(client, message, users_collection, OWNER_ID)
     
 
