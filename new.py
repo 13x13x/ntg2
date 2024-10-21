@@ -81,7 +81,7 @@ async def ban_user(client, message, users_collection, OWNER_ID):
     try:
         result = users_collection.update_one({"user_id": user_id}, {"$set": {"banned": True}})
         if result.modified_count > 0:
-            await client.send_message(user_id, "**You are banned from the bot 🌚**")
+            await client.send_message(user_id, "**🙃 ᴘʟᴇᴀsᴇ ɴᴏᴛᴇ: ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ. ᴀᴛᴛᴇᴍᴘᴛ ᴛᴏ ᴜsᴇ ᴏʀ ᴄᴏᴍᴍᴀɴᴅs ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ 🤫**")
             await message.reply(f"**User {user_id} has been banned**")
         else:
             await message.reply(f"**User {user_id} is already banned**")
@@ -112,7 +112,7 @@ async def unban_user(client, message, users_collection, OWNER_ID):
     try:
         result = users_collection.update_one({"user_id": user_id}, {"$set": {"banned": False}})
         if result.modified_count > 0:
-            await client.send_message(user_id, "**You are unbanned from the bot. Happy to use! 🥳**")
+            await client.send_message(user_id, "**😉 ᴘʟᴇᴀsᴇ ɴᴏᴛᴇ: ʏᴏᴜ ᴀʀᴇ ᴜɴʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ. ʏᴏᴜ ᴀʀᴇ ɴᴏᴡ ʟɪғᴛᴇʀ ᴛᴏ ᴜsᴇ ɪᴛ! ʜᴀᴘᴘʏ ᴜsɪɴɢ! 🎉**")
             await message.reply(f"**User {user_id} has been unbanned**")
         else:
             await message.reply(f"**User {user_id} was not banned**")
@@ -128,4 +128,4 @@ async def user_stats(client, message, users_collection, OWNER_ID):
 
     total_users = users_collection.count_documents({})
     banned_users = users_collection.count_documents({"banned": True})
-    await message.reply(f"**Total Users: {total_users}**\n**Banned Users: {banned_users}**")
+    await message.reply(f"**🙂 ᴛᴏᴛᴀʟ ᴜsᴇʀs: {total_users}**\n**🙃 ʙᴀɴɴᴇᴅ ᴜsᴇʀs: {banned_users}**")
