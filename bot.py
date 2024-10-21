@@ -88,12 +88,12 @@ async def replace_tag(client, message):
         return
 
     if not user:
-        await message.reply("****")
+        await message.reply("**🙂 ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
         return
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please Add Your Amazon Tag From The User Settings Using The /start**")
+        await message.reply("**ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
         return
 
     try:
@@ -120,9 +120,9 @@ async def replace_tag(client, message):
                 await message.reply(product_details)
 
         else:
-            await message.reply("**Please Provide A Valid Amazon URL**")
+            await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
     except Exception as e:
-        await message.reply(f"**Error in /amz command: {e}**")
+        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
@@ -142,7 +142,7 @@ def scrape_amazon_product(url):
     if product_name:
         product_name = product_name.get_text(strip=True)
     else:
-        return "**Product Datails Not Found , Try Again**", None
+        return "**Product Datails Not Found, Try Again**", None
 
     # Price (deal price)
     price_tag = soup.find('span', {'class': 'a-price-whole'})
@@ -206,7 +206,7 @@ def scrape_amazon_product(url):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**Please Provide A Valid Amazon URL**")
+            await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
             return
 
         url = message.command[1]
@@ -221,7 +221,7 @@ async def scrape(client, message):
             return
 
         if not user:
-            await message.reply("**User Not Found In The Database Please /start the bot again **")
+            await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ᴛʜɪs ʙᴏᴛ**")
             return
 
         footer = user.get('footer', '')  # Get the footer, if available
