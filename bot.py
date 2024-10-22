@@ -49,29 +49,23 @@ app = Client(
 )
 
 #premium
-
-@app.on_message(filters.command(["why", "help"]))
-async def why(client, message):
-    image_path = "https://envs.sh/pHm.jpg"  # Replace with your image path
-    
-    main_text = (
+# Handler for the /why command
+@app.on_message(filters.command("why") & filters.private)
+async def why_command(client, message):
+    response_text = (
         "**Subscription Required for Bot Access**\n\n"
         "Dear Valued User,\n\n"
-        "We regret to inform you that you currently do not have access to the features of our bot "
-        "To enjoy full functionality, we kindly invite you to purchase a subscription from the owner\n\n"
-        "We offer a **flexible monthly subscription plan** designed to cater to your needs\n\n"
-        "If you have any questions or require further assistance, please feel free to reach out to our support admin at [@amzdevbot](https://t.me/amzdevbot).\n\n"
-        "We appreciate your understanding and support\n\n"
+        "We regret to inform you that you currently do not have access to the features of our bot. "
+        "To enjoy full functionality, we kindly invite you to purchase a subscription from the owner.\n\n"
+        "We offer a **flexible monthly subscription plan** designed to cater to your needs.\n\n"
+        "If you have any questions or require further assistance, please feel free to reach out to our support admin at @amzdevbot.\n\n"
+        "We appreciate your understanding and support.\n\n"
         "Best Regards,\n"
         "**Team:** @Ultraamzinfo\n"
     )
-    
-    await app.send_photo(
-        chat_id=message.chat.id,
-        photo=image_path,
-        caption=main_text,
-        reply_to_message_id=message.message_id
-    )
+
+    # Send the text message with the image
+    await message.reply_photo(photo="https://envs.sh/pHm.jpg", caption=response_text)
 
 # Command to handle /info and save user details to info.txt
 @app.on_message(filters.command("info") & filters.user(OWNER_ID))  # OWNER_ID is your admin user ID
