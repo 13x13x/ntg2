@@ -135,7 +135,7 @@ async def start(client, message):
         print(f"User {user_id} already exists in the database")  # Debugging line
 
     if user and user.get('banned', False):  # Check if the user is banned
-        await message.reply("**Important Notice:** The bot is currently unable to execute commands as expected\n\nPlease check **/why** for full information**")
+        await message.reply("**Important Notice:** The bot is currently unable to execute commands as expected\n\nPlease check **/why** for full information")
         return
 
     # Welcome text without formatting
