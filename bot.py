@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
@@ -205,97 +205,127 @@ async def replace_tag(client, message):
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
 # Create a thumbnail with a white background
-async def create_thumbnail_with_text(product_image_url):
+def create_thumbnail_with_white_bg(product_image_url):
     try:
-        async with aiohttp.ClientSession() as session:
-            image_data = await fetch_image(session, product_image_url)
-            product_img = Image.open(BytesIO(image_data))
+        # Fetch the product image
+        response = requests.get(product_image_url)
+        product_img = Image.open(BytesIO(response.content))
 
-            max_size = (700, 700)
-            product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
+        # Resize the product image to fit within the canvas
+        # Slight increase in max_size from 500x500 to 550x550
+        max_size = (550, 550)  # Slight increase in size
+        product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
-            canvas_size = (1280, 720)
-            white_bg = Image.new('RGB', canvas_size, 'white')
+        # Create a white background canvas (1280x720)
+        canvas_size = (1280, 720)
+        white_bg = Image.new('RGB', canvas_size, 'white')
 
-            img_w, img_h = product_img.size
-            bg_w, bg_h = white_bg.size
-            offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
-            white_bg.paste(product_img, offset)
+        # Center the product image on the canvas
+        img_w, img_h = product_img.size
+        bg_w, bg_h = white_bg.size
+        offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
+        white_bg.paste(product_img, offset)
 
-            draw = ImageDraw.Draw(white_bg)
-            font_path = "fonts/Roboto-Regular.ttf"
-            font_size = 60
-            font = ImageFont.truetype(font_path, font_size)
-            text = "@Ultraamzbot"
-            text_color = (0, 0, 0)
-            text_position = (10, bg_h - font_size - 10)
+        # Save or return the image as a BytesIO object
+        buffer = BytesIO()
+        white_bg.save(buffer, format="JPEG")
+        buffer.seek(0)
 
-            draw.text(text_position, text, fill=text_color, font=font)
-
-            buffer = BytesIO()
-            white_bg.save(buffer, format="JPEG")
-            buffer.seek(0)
-
-            return buffer
+        return buffer
     except Exception as e:
         print(f"Error creating thumbnail: {e}")
         return None
 
-async def scrape_amazon_product(url):
+# Scraper function to fetch Amazon product data
+def scrape_amazon_product(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
         'Accept-Language': 'en-US, en;q=0.5'
     }
+    response = requests.get(url, headers=headers)
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as response:
-            if response.status != 200:
-                return f"**Failed To Retrieve Page, Status Code: {response.status}**", None
-            
-            content = await response.text()
-            soup = BeautifulSoup(content, 'html.parser')
+    if response.status_code != 200:
+        return f"**Failed To Retrieve Page, Status Code: {response.status_code}**", None
 
-            product_name = soup.find('span', {'id': 'productTitle'})
-            if product_name:
-                product_name = product_name.get_text(strip=True)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Product name
+    product_name = soup.find('span', {'id': 'productTitle'})
+    if product_name:
+        product_name = product_name.get_text(strip=True)
+    else:
+        return "**Product Details Not Found, Try Again**", None
+
+    # Price (deal price)
+    price_tag = soup.find('span', {'class': 'a-price-whole'})
+    if price_tag:
+        price = price_tag.get_text(strip=True).replace(',', '').rstrip('.')
+    else:
+        price = 'not found'
+
+    # MRP (find the highest valid MRP)
+    mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
+    mrp = None
+    if mrp_tag:
+        mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
+        valid_mrps = []
+        for val in mrp_values:
+            text_value = val.get_text(strip=True)
+            if "per" not in text_value.lower():  # Ignore values like "₹2.69 per millilitre"
+                try:
+                    mrp_cleaned = float(re.sub(r'[^\d.]', '', text_value))
+                    valid_mrps.append(mrp_cleaned)
+                except ValueError:
+                    continue
+        
+        # Select the highest MRP that is greater than the price
+        if valid_mrps:
+            highest_valid_mrp = max(valid_mrps)
+            if highest_valid_mrp > float(price):
+                mrp = f"₹{highest_valid_mrp:.2f}"
             else:
-                return "**Product Details Not Found, Try Again**", None
-
-            price_tag = soup.find('span', {'class': 'a-price-whole'})
-            price = price_tag.get_text(strip=True).replace(',', '').rstrip('.') if price_tag else 'not found'
-
-            mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
+                mrp = 'not applicable'
+        else:
             mrp = 'not found'
-            if mrp_tag:
-                mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
-                valid_mrps = [float(re.sub(r'[^\d.]', '', val.get_text(strip=True))) for val in mrp_values if "per" not in val.get_text(strip=True).lower()]
-                if valid_mrps:
-                    highest_valid_mrp = max(valid_mrps)
-                    if highest_valid_mrp > float(price):
-                        mrp = f"₹{highest_valid_mrp:.2f}"
+    else:
+        mrp = 'not found'
 
+    # Calculate discount
+    discount_text = ""
+    if mrp != 'not applicable' and mrp != 'not found':
+        try:
+            price_value = float(price.replace(',', ''))
+            mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
+            if mrp_value > price_value:
+                discount = mrp_value - price_value
+                discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
+                discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
+        except (ValueError, TypeError):
             discount_text = ""
-            if mrp != 'not found':
-                price_value = float(price.replace(',', ''))
-                mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
-                if mrp_value > price_value:
-                    discount = mrp_value - price_value
-                    discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
-                    discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
 
-            image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
-            product_image_url = image_tag.img['src'] if image_tag and image_tag.img else None
-            if product_image_url:
-                product_image_url = re.sub(r'_(UX|SX|SL)[0-9]+_', '_UL1500_', product_image_url)
-                product_thumbnail = await create_thumbnail_with_text(product_image_url)
+    # Product Image (scrape in HD quality)
+    image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
+    if image_tag and image_tag.img:
+        product_image_url = image_tag.img['src']
+        # Transform the image URL to get the highest quality version available
+        product_image_url = re.sub(r'_(UX|SX|SL)[0-9]+_', '_UL1500_', product_image_url)
+        
+        # Create white background thumbnail
+        product_thumbnail = create_thumbnail_with_white_bg(product_image_url)
+        if product_thumbnail:
+            # Integrate with your bot code to send this image
+            pass  # Use this image in your bot
+    else:
+        product_image_url = None
 
-            product_details = f"🤯 **{product_name}**\n\n"
-            product_details += discount_text
-            if mrp != 'not found':
-                product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
-            product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
-            
-            return product_details, product_thumbnail
+    # Final product details response
+    product_details = f"🤯 **{product_name}**\n\n"
+    product_details += discount_text  # Add discount only if available
+    if mrp != 'not applicable':
+        product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
+    product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+    
+    return product_details, product_thumbnail
 
 # Command to scrape Amazon product
 @app.on_message(filters.command("amzpd") & filters.private)
