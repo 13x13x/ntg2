@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
@@ -204,7 +204,7 @@ async def replace_tag(client, message):
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
 # Create a thumbnail with a white background
-# Create a thumbnail with a white background and add text
+
 def create_thumbnail_with_text(product_image_url):
     try:
         # Fetch the product image
@@ -227,12 +227,12 @@ def create_thumbnail_with_text(product_image_url):
 
         # Draw text on the image
         draw = ImageDraw.Draw(white_bg)
-        
-        # Load a font (ensure you have a .ttf font file available, adjust the path if needed)
-        font_path = "arial.ttf"  # Change this to the path of the font you want to use
+
+        # Load the Roboto font (ensure you have the TTF file in your project directory)
+        font_path = "fonts/Roboto-Bold.ttf"  # Adjust this path based on your folder structure
         font_size = 60
         font = ImageFont.truetype(font_path, font_size)
-        
+
         # Define the text and position
         text = "@Ultraamzbot"
         text_color = (0, 0, 0)  # Black color
@@ -250,6 +250,7 @@ def create_thumbnail_with_text(product_image_url):
     except Exception as e:
         print(f"Error creating thumbnail: {e}")
         return None
+
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
