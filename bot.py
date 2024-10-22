@@ -120,10 +120,6 @@ async def start(client, message):
         users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} Added in the database")  # Debugging line
 
-        # Add user to the banned users collection
-        banned_users_collection.insert_one({"user_id": user_id})
-        print(f"User {user_id} added to the banned users collection")  # Debugging line
-        
         # Notify the log channel about the new user
         try:
             if message.from_user.username:
