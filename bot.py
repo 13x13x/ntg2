@@ -212,7 +212,7 @@ def create_thumbnail_with_text(product_image_url):
         product_img = Image.open(BytesIO(response.content))
 
         # Resize the product image to fit within the canvas
-        max_size = (700, 700)  # Slight increase in size
+        max_size = (900, 900)  # Slight increase in size
         product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
         # Create a white background canvas (1280x720)
@@ -230,7 +230,7 @@ def create_thumbnail_with_text(product_image_url):
 
         # Load the Roboto font (ensure you have the TTF file in your project directory)
         font_path = "fonts/Roboto-Bold.ttf"  # Adjust this path based on your folder structure
-        font_size = 60
+        font_size = 20
         font = ImageFont.truetype(font_path, font_size)
 
         # Define the text and position
