@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFont
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
@@ -204,15 +204,15 @@ async def replace_tag(client, message):
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
 # Create a thumbnail with a white background
-def create_thumbnail_with_white_bg(product_image_url):
+# Create a thumbnail with a white background and add text
+def create_thumbnail_with_text(product_image_url):
     try:
         # Fetch the product image
         response = requests.get(product_image_url)
         product_img = Image.open(BytesIO(response.content))
 
         # Resize the product image to fit within the canvas
-        # Slight increase in max_size from 500x500 to 550x550
-        max_size = (600, 600)  # Slight increase in size
+        max_size = (700, 700)  # Slight increase in size
         product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
         # Create a white background canvas (1280x720)
@@ -224,6 +224,22 @@ def create_thumbnail_with_white_bg(product_image_url):
         bg_w, bg_h = white_bg.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         white_bg.paste(product_img, offset)
+
+        # Draw text on the image
+        draw = ImageDraw.Draw(white_bg)
+        
+        # Load a font (ensure you have a .ttf font file available, adjust the path if needed)
+        font_path = "arial.ttf"  # Change this to the path of the font you want to use
+        font_size = 60
+        font = ImageFont.truetype(font_path, font_size)
+        
+        # Define the text and position
+        text = "@Ultraamzbot"
+        text_color = (0, 0, 0)  # Black color
+        text_position = (10, bg_h - font_size - 10)  # Bottom left corner with some padding
+
+        # Add the text to the image
+        draw.text(text_position, text, fill=text_color, font=font)
 
         # Save or return the image as a BytesIO object
         buffer = BytesIO()
