@@ -326,7 +326,7 @@ def scrape_amazon_product(url):
         product_image_url = re.sub(r'_(UX|SX|SL)[0-9]+_', '_UL1500_', product_image_url)
         
         # Create white background thumbnail
-        product_thumbnail = create_thumbnail_with_white_bg(product_image_url)
+        product_thumbnail = create_thumbnail_with_text(product_image_url)
         if product_thumbnail:
             # Integrate with your bot code to send this image
             pass  # Use this image in your bot
