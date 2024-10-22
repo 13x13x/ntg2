@@ -1,3 +1,5 @@
+from PIL import Image, ImageOps
+from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
