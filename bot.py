@@ -192,7 +192,8 @@ def create_thumbnail_with_white_bg(product_image_url):
         product_img = Image.open(BytesIO(response.content))
 
         # Resize the product image to fit within the canvas
-        max_size = (500, 500)  # Adjust size if needed
+        # Slight increase in max_size from 500x500 to 550x550
+        max_size = (600, 600)  # Slight increase in size
         product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
         # Create a white background canvas (1280x720)
