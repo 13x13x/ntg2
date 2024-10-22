@@ -182,10 +182,36 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
-# Scraper function to fetch Amazon product data
-import requests
-from bs4 import BeautifulSoup
-import re
+# Create a thumbnail with a white background
+def create_thumbnail_with_white_bg(product_image_url):
+    try:
+        # Fetch the product image
+        response = requests.get(product_image_url)
+        product_img = Image.open(BytesIO(response.content))
+
+        # Resize the product image to fit within the canvas
+        max_size = (500, 500)  # Adjust size if needed
+        product_img.thumbnail(max_size, Image.ANTIALIAS)
+
+        # Create a white background canvas (1280x720)
+        canvas_size = (1280, 720)
+        white_bg = Image.new('RGB', canvas_size, 'white')
+
+        # Center the product image on the canvas
+        img_w, img_h = product_img.size
+        bg_w, bg_h = white_bg.size
+        offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
+        white_bg.paste(product_img, offset)
+
+        # Save or return the image as a BytesIO object
+        buffer = BytesIO()
+        white_bg.save(buffer, format="JPEG")
+        buffer.seek(0)
+
+        return buffer
+    except Exception as e:
+        print(f"Error creating thumbnail: {e}")
+        return None
 
 # Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
@@ -235,25 +261,24 @@ def scrape_amazon_product(url):
             if highest_valid_mrp > float(price):
                 mrp = f"₹{highest_valid_mrp:.2f}"
             else:
-                mrp = 'not found'
+                mrp = 'not applicable'
         else:
             mrp = 'not found'
     else:
         mrp = 'not found'
 
     # Calculate discount
-    try:
-        price_value = float(price.replace(',', ''))
-        mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
-        if mrp_value > price_value:  # Ensure MRP is higher than the deal price for discount calculation
-            discount = mrp_value - price_value
-            discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
-            discount_text = f'₹{discount:.2f} ({discount_percentage:.2f}%)'
-        else:
-            discount_text = 'No discount'
-            mrp = 'not applicable'  # Don't show MRP if it's lower than or equal to the price
-    except (ValueError, TypeError):
-        discount_text = 'Unable To Calculate Discount'
+    discount_text = ""
+    if mrp != 'not applicable' and mrp != 'not found':
+        try:
+            price_value = float(price.replace(',', ''))
+            mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
+            if mrp_value > price_value:
+                discount = mrp_value - price_value
+                discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
+                discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
+        except (ValueError, TypeError):
+            discount_text = ""
 
     # Product Image (scrape in HD quality)
     image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
@@ -261,16 +286,23 @@ def scrape_amazon_product(url):
         product_image_url = image_tag.img['src']
         # Transform the image URL to get the highest quality version available
         product_image_url = re.sub(r'_(UX|SX|SL)[0-9]+_', '_UL1500_', product_image_url)
+        
+        # Create white background thumbnail
+        product_thumbnail = create_thumbnail_with_white_bg(product_image_url)
+        if product_thumbnail:
+            # Integrate with your bot code to send this image
+            pass  # Use this image in your bot
     else:
         product_image_url = None
 
     # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n😱 **Discount: {discount_text} 🔥**\n\n"
+    product_details = f"🤯 **{product_name}**\n\n"
+    product_details += discount_text  # Add discount only if available
     if mrp != 'not applicable':
         product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
     product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
     
-    return product_details, product_image_url
+    return product_details, product_thumbnail
 
 # Command to scrape Amazon product
 @app.on_message(filters.command("amzpd") & filters.private)
