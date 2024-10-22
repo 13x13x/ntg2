@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageResampling
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
@@ -193,7 +193,7 @@ def create_thumbnail_with_white_bg(product_image_url):
 
         # Resize the product image to fit within the canvas
         max_size = (500, 500)  # Adjust size if needed
-        product_img.thumbnail(max_size, Image.ANTIALIAS)
+        product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
         # Create a white background canvas (1280x720)
         canvas_size = (1280, 720)
