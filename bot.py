@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps, ImageResampling
+from PIL import Image, ImageOps
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram import errors
