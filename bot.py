@@ -53,15 +53,15 @@ app = Client(
 @app.on_message(filters.command("why") & filters.private)
 async def why_command(client, message):
     response_text = (
-        "**Subscription Required for Bot Access**\n\n"
-        "Dear Valued User,\n\n"
-        "We regret to inform you that you currently do not have access to the features of our bot. "
-        "To enjoy full functionality, we kindly invite you to purchase a subscription from the owner.\n\n"
-        "We offer a **flexible monthly subscription plan** designed to cater to your needs.\n\n"
-        "If you have any questions or require further assistance, please feel free to reach out to our support admin at @amzdevbot.\n\n"
-        "We appreciate your understanding and support.\n\n"
-        "Best Regards,\n"
-        "**Team:** @Ultraamzinfo\n"
+        "**🙏🏻 Subscription Required For Bot Access**\n\n"
+        "**Dear Valued User,**\n\n"
+        "**We regret to inform you that you currently do not have access to the features of our bot** "
+        "**To enjoy full functionality, we kindly invite you to purchase a subscription from the owner**\n\n"
+        "**We offer a flexible Monthly Subscription Plan designed to cater to your needs**\n\n"
+        "**If you have any questions or require further assistance, please feel free to reach out to our support admin at @amzdevbot**\n\n"
+        "**We appreciate your understanding and support**\n\n"
+        "**Best Regards,**\n"
+        "**Team: @Ultraamzinfo**\n"
     )
 
     # Send the text message with the image
