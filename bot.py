@@ -32,6 +32,7 @@ try:
     client = MongoClient(MONGO_URI)
     db = client['lanja_db']
     users_collection = db['users']
+    banned_users_collection = db["banned_users"]
     print("Connected to MongoDB")  # Debugging line
 except ServerSelectionTimeoutError as e:
     print(f"Could not connect to MongoDB: {e}")
