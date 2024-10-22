@@ -64,7 +64,7 @@ async def why(client, message):
         "If you have any questions or require further assistance, please feel free to reach out to our support admin at [@amzdevbot](https://t.me/amzdevbot).\n\n"
         "We appreciate your understanding and support\n\n"
         "Best Regards,\n"
-        "**Team:** [@Ultraamzinfo](https://t.me/Ultraamzinfo)\n"
+        "**Team:** @Ultraamzinfo\n"
     )
     
     await app.send_photo(
