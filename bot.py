@@ -126,7 +126,7 @@ async def start(client, message):
             if message.from_user.username:
                 username = message.from_user.username
             else:
-                username = "None"
+                username = "Nonee"
             notification_text = f"**#NewUser from Ultraamz 😘**\n**UserID:** `{user_id}`\n**Username: @{username}**"
             await client.send_message(LOG_CHANNEL, notification_text)
         except Exception as e:
@@ -220,37 +220,41 @@ async def replace_tagg(client, message):
         await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
         return
 
-
     try:
         if len(message.command) > 1:
             url = message.command[1]
 
-            # Handle shortened URLs from amzn.to
+            # Handle amzn.to short URLs
             if url.startswith("https://amzn.to/"):
-                # Extract product code using requests
-                response = requests.get(url, allow_redirects=False)
-                location = response.headers.get('location')
-                if location:
-                    product_code = location.split("/")[-1]
-                    url = f"https://www.amazon.in/dp/{product_code}"
-                else:
-                    await message.reply("**Error: Unable to extract product code from shortened URL.**")
+                try:
+                    response = requests.get(url, allow_redirects=False)
+                    location = response.headers.get('location')
+                    if location:
+                        url = location
+                    else:
+                        await message.reply("**Error: Unable to extract product code from shortened URL.**")
+                        return
+                except Exception as e:
+                    await message.reply(f"**Error resolving shortened URL: {e}**")
                     return
 
-            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
-            
-            # Replace existing tag or add new one
-            if "tag=" in url:
-                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
-            else:
-                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
+            # Ensure valid product URL format for further processing
+            if not re.search(r'/dp/([A-Z0-9]{10})', url):
+                await message.reply("**Invalid URL: Please provide a valid Amazon product URL.**")
+                return
 
-            # Call the scrape_amazon_product function directly
+            # Replace existing Amazon tag or append it
+            if "tag=" in url:
+                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)
+            else:
+                updated_url = url + f"&tag={amazon_tag}"
+
+            # Call the scrape_amazon_product function to fetch product details
             product_details, product_image_url = scrape_amazon_product(updated_url)
 
-            footer = user.get('footer', '')  # Get the footer, if available
+            footer = user.get('footer', '')
             if footer:
-                product_details += f"\n\n**{footer}**"  # Append the footer to product details
+                product_details += f"\n\n**{footer}**"
 
             if product_image_url:
                 await message.reply_photo(photo=product_image_url, caption=product_details)
@@ -259,19 +263,17 @@ async def replace_tagg(client, message):
 
         else:
             await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
-            # Notify the log channel about the new link
+
+        # Log the new link to the channel
         try:
-            if message.from_user.username:
-                username = message.from_user.username
-            else:
-                username = "None"
-            notification_text = f"**#Newlink from Username: @{username} 😘**\n**UserID:** `{user_id}`\n\n{url}**"
+            username = message.from_user.username if message.from_user.username else "Nonee"
+            notification_text = f"**#Newlink from @{username} 😘**\n**UserID:** `{user_id}`\n\n{url}**"
             await client.send_message(LOG_CHANNEL, notification_text)
         except Exception as e:
             print(f"Error sending notification to log channel: {e}")
-    except Exception as e:
-        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
+    except Exception as e:
+        await message.reply(f"**Error in /amzz command: {e}**")
 
 #New imports 
 
