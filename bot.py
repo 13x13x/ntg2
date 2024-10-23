@@ -172,7 +172,7 @@ async def replace_tag(client, message):
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
+        await message.reply("**Please Add Your Amazon Tag form User Settings Using This /start**")
         return
 
     try:
