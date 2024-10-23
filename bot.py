@@ -204,15 +204,43 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
-# Create a thumbnail with a white background
-def create_thumbnail_with_white_bg(product_image_url):
+#New imports 
+
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
+
+# Initialize a single session for all HTTP requests
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
+    'Accept-Language': 'en-US, en;q=0.5'
+})
+
+# Precompile regex patterns
+image_url_pattern = re.compile(r'_(UX|SX|SL)[0-9]+_')
+non_numeric_pattern = re.compile(r'[^\d.]')
+
+# Load the Roboto font once
+try:
+    font_path = "fonts/.ttf"  # Ensure this path is correct
+    font_size = 5
+    font = ImageFont.truetype(font_path, font_size)
+except IOError:
+    print("Error: Font file not found. Please check the font path.")
+    font = ImageFont.load_default()
+
+# Lock for thread-safe operations (if needed)
+lock = threading.Lock()
+
+def create_thumbnail_with_text(product_image_url):
     try:
-        # Fetch the product image
-        response = requests.get(product_image_url)
-        product_img = Image.open(BytesIO(response.content))
+        # Fetch the product image using the shared session
+        response = session.get(product_image_url, timeout=10)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        product_img = Image.open(BytesIO(response.content)).convert('RGB')  # Ensure image is in RGB
 
         # Resize the product image to fit within the canvas
-        # Slight increase in max_size from 500x500 to 550x550
         max_size = (900, 900)  # Slight increase in size
         product_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
@@ -226,9 +254,20 @@ def create_thumbnail_with_white_bg(product_image_url):
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         white_bg.paste(product_img, offset)
 
-        # Save or return the image as a BytesIO object
+        # Draw text on the image
+        draw = ImageDraw.Draw(white_bg)
+
+        # Define the text and position
+        text = "@Ultraamzbot"
+        text_color = (0, 0, 0)  # Black color
+        text_position = (10, bg_h - font_size - 10)  # Bottom left corner with some padding
+
+        # Add the text to the image
+        draw.text(text_position, text, fill=text_color, font=font)
+
+        # Save the image to a BytesIO object
         buffer = BytesIO()
-        white_bg.save(buffer, format="JPEG")
+        white_bg.save(buffer, format="JPEG", optimize=True, quality=85)  # Optimize image size
         buffer.seek(0)
 
         return buffer
@@ -236,96 +275,114 @@ def create_thumbnail_with_white_bg(product_image_url):
         print(f"Error creating thumbnail: {e}")
         return None
 
-# Scraper function to fetch Amazon product data
 def scrape_amazon_product(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36',
-        'Accept-Language': 'en-US, en;q=0.5'
-    }
-    response = requests.get(url, headers=headers)
+    try:
+        # Fetch the product page using the shared session
+        response = session.get(url, timeout=10)
+        response.raise_for_status()
 
-    if response.status_code != 200:
-        return f"**Failed To Retrieve Page, Status Code: {response.status_code}**", None
+        # Parse the HTML content with BeautifulSoup using the faster 'lxml' parser
+        soup = BeautifulSoup(response.content, 'lxml')
 
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Product name
-    product_name = soup.find('span', {'id': 'productTitle'})
-    if product_name:
-        product_name = product_name.get_text(strip=True)
-    else:
-        return "**Product Details Not Found, Try Again**", None
-
-    # Price (deal price)
-    price_tag = soup.find('span', {'class': 'a-price-whole'})
-    if price_tag:
-        price = price_tag.get_text(strip=True).replace(',', '').rstrip('.')
-    else:
-        price = 'not found'
-
-    # MRP (find the highest valid MRP)
-    mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
-    mrp = None
-    if mrp_tag:
-        mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
-        valid_mrps = []
-        for val in mrp_values:
-            text_value = val.get_text(strip=True)
-            if "per" not in text_value.lower():  # Ignore values like "₹2.69 per millilitre"
-                try:
-                    mrp_cleaned = float(re.sub(r'[^\d.]', '', text_value))
-                    valid_mrps.append(mrp_cleaned)
-                except ValueError:
-                    continue
-        
-        # Select the highest MRP that is greater than the price
-        if valid_mrps:
-            highest_valid_mrp = max(valid_mrps)
-            if highest_valid_mrp > float(price):
-                mrp = f"₹{highest_valid_mrp:.2f}"
-            else:
-                mrp = 'not applicable'
+        # Product name
+        product_name_tag = soup.find('span', {'id': 'productTitle'})
+        if product_name_tag:
+            product_name = product_name_tag.get_text(strip=True)
         else:
-            mrp = 'not found'
-    else:
+            return "**Product Details Not Found, Try Again**", None
+
+        # Price (deal price)
+        price_tag = soup.find('span', {'class': 'a-price-whole'})
+        if price_tag:
+            price = price_tag.get_text(strip=True).replace(',', '').rstrip('.')
+        else:
+            price = 'not found'
+
+        # MRP (find the highest valid MRP)
+        mrp_tag = soup.find('span', {'class': 'a-price a-text-price'})
         mrp = 'not found'
+        if mrp_tag:
+            mrp_values = mrp_tag.find_all('span', {'class': 'a-offscreen'})
+            valid_mrps = []
+            for val in mrp_values:
+                text_value = val.get_text(strip=True)
+                if "per" not in text_value.lower():  # Ignore values like "₹2.69 per millilitre"
+                    try:
+                        mrp_cleaned = float(non_numeric_pattern.sub('', text_value))
+                        valid_mrps.append(mrp_cleaned)
+                    except ValueError:
+                        continue
 
-    # Calculate discount
-    discount_text = ""
-    if mrp != 'not applicable' and mrp != 'not found':
-        try:
-            price_value = float(price.replace(',', ''))
-            mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
-            if mrp_value > price_value:
-                discount = mrp_value - price_value
-                discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
-                discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
-        except (ValueError, TypeError):
-            discount_text = ""
+            # Select the highest MRP that is greater than the price
+            if valid_mrps:
+                highest_valid_mrp = max(valid_mrps)
+                if price != 'not found' and highest_valid_mrp > float(price):
+                    mrp = f"₹{highest_valid_mrp:.2f}"
+                else:
+                    mrp = 'not applicable'
 
-    # Product Image (scrape in HD quality)
-    image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
-    if image_tag and image_tag.img:
-        product_image_url = image_tag.img['src']
-        # Transform the image URL to get the highest quality version available
-        product_image_url = re.sub(r'_(UX|SX|SL)[0-9]+_', '_UL1500_', product_image_url)
-        
-        # Create white background thumbnail
-        product_thumbnail = create_thumbnail_with_white_bg(product_image_url)
-        if product_thumbnail:
-            # Integrate with your bot code to send this image
-            pass  # Use this image in your bot
-    else:
-        product_image_url = None
+        # Calculate discount
+        discount_text = ""
+        if mrp not in ['not applicable', 'not found']:
+            try:
+                price_value = float(price.replace(',', ''))
+                mrp_value = float(mrp.replace('₹', '').replace(',', '')) if mrp != 'not found' else 0
+                if mrp_value > price_value:
+                    discount = mrp_value - price_value
+                    discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
+                    discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
+            except (ValueError, TypeError):
+                discount_text = ""
 
-    # Final product details response
-    product_details = f"🤯 **{product_name}**\n\n"
-    product_details += discount_text  # Add discount only if available
-    if mrp != 'not applicable':
-        product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
-    product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
-    
-    return product_details, product_thumbnail
+        # Product Image (scrape in HD quality)
+        image_tag = soup.find('div', {'id': 'imgTagWrapperId'})
+        product_thumbnail = None
+        if image_tag and image_tag.img:
+            product_image_url = image_tag.img.get('data-a-dynamic-image')
+            if product_image_url:
+                # Extract the first image URL from the JSON-like string
+                match = re.search(r'"(https://[^"]+)"', product_image_url)
+                if match:
+                    product_image_url = match.group(1)
+                    # Transform the image URL to get the highest quality version available
+                    product_image_url = image_url_pattern.sub('_UL1500_', product_image_url)
+
+                    # Create white background thumbnail
+                    product_thumbnail = create_thumbnail_with_text(product_image_url)
+        # Final product details response
+        product_details = f"🤯 **{product_name}**\n\n"
+        product_details += discount_text  # Add discount only if available
+        if mrp != 'not applicable':
+            product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
+        product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+
+        return product_details, product_thumbnail
+
+    except requests.RequestException as e:
+        print(f"HTTP Request failed: {e}")
+        return f"**Failed To Retrieve Page: {e}**", None
+    except Exception as e:
+        print(f"Error scraping product: {e}")
+        return "**An unexpected error occurred. Please try again later.**", None
+
+def scrape_multiple_products(urls):
+    product_details_list = []
+    product_thumbnails = []
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(scrape_amazon_product, url): url for url in urls}
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                details, thumbnail = future.result()
+                product_details_list.append(details)
+                product_thumbnails.append(thumbnail)
+            except Exception as e:
+                print(f"Error processing {url}: {e}")
+                product_details_list.append(f"**Failed to process {url}**")
+                product_thumbnails.append(None)
+
+    return product_details_list, product_thumbnails
 
 # Command to scrape Amazon product
 @app.on_message(filters.command("amzpd") & filters.private)
