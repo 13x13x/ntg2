@@ -286,7 +286,7 @@ def create_thumbnail_with_text(product_image_url):
         # Define the text and position
         text = "BOT: @Ultraamzbot"
         text_color = (0, 0, 0)  # Black color
-        text_position = (10, bg_h - font_size - 13)  # Bottom left corner with some padding
+        text_position = (10, bg_h - font_size - 18)  # Bottom left corner with some padding
 
         # Add the text to the image
         draw.text(text_position, text, fill=text_color, font=font)
