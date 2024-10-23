@@ -155,56 +155,10 @@ async def start(client, message):
     except Exception as e:
         print(f"Error sending message: {e}")
 
-@app.on_message(filters.command("amz") & filters.private)
-async def replace_tag(client, message):
-    user_id = message.from_user.id
-    user = users_collection.find_one({"user_id": user_id})
-
-    if user.get('banned', False):  # Check if the user is banned
-        await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
-        return
-
-    if not user:
-        await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
-        return
-
-    amazon_tag = user.get('amazon_tag')
-    if not amazon_tag:
-        await message.reply("**💀 ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
-        return
-
-    try:
-        if len(message.command) > 1:
-            url = message.command[1]
-            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
-
-            # Replace existing tag or add new one
-            if "tag=" in url:
-                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
-            else:
-                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
-
-            # Call the scrape_amazon_product function directly
-            product_details, product_image_url = scrape_amazon_product(updated_url)
-
-            footer = user.get('footer', '')  # Get the footer, if available
-            if footer:
-                product_details += f"\n\n**{footer}**"  # Append the footer to product details
-
-            if product_image_url:
-                await message.reply_photo(photo=product_image_url, caption=product_details)
-            else:
-                await message.reply(product_details)
-
-        else:
-            await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
-    except Exception as e:
-        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
-
 #ntg
 
-@app.on_message(filters.command("amzz") & filters.private)
-async def replace_tagg(client, message):
+@app.on_message(filters.command("amz") & filters.private)
+async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
