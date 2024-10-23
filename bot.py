@@ -135,12 +135,8 @@ async def start(client, message):
     else:
         print(f"User {user_id} already exists in the database")  # Debugging line
 
-    if user and user.get('banned', False):  # Check if the user is banned
-        await message.reply("**Important Notice:** The bot is currently unable to execute commands as expected\n\nPlease check **/why** for full information")
-        return
-
     # Welcome text without formatting
-    welcome_text = "**ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
+    welcome_text = "**🛒 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
 
     # Create the inline keyboard
     keyboard = InlineKeyboardMarkup([
@@ -164,7 +160,7 @@ async def replace_tag(client, message):
     user = users_collection.find_one({"user_id": user_id})
 
     if user.get('banned', False):  # Check if the user is banned
-        await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
+        await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
         return
 
     if not user:
@@ -224,7 +220,7 @@ non_numeric_pattern = re.compile(r'[^\d.]')
 # Load the Roboto font once
 try:
     font_path = "fonts/Roboto-Bold.ttf"  # Ensure this path is correct
-    font_size = 5
+    font_size = 15
     font = ImageFont.truetype(font_path, font_size)
 except IOError:
     print("Error: Font file not found. Please check the font path.")
@@ -258,7 +254,7 @@ def create_thumbnail_with_text(product_image_url):
         draw = ImageDraw.Draw(white_bg)
 
         # Define the text and position
-        text = "@Ultraamzbot"
+        text = "BOT: @Ultraamzbot"
         text_color = (0, 0, 0)  # Black color
         text_position = (10, bg_h - font_size - 10)  # Bottom left corner with some padding
 
@@ -400,7 +396,7 @@ async def scrape(client, message):
         user = users_collection.find_one({"user_id": user_id})
 
         if user.get('banned', False):  # Check if the user is banned
-            await message.reply("**ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ 🚫 ғʀᴏᴍ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ**")
+            await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
             return
 
         if not user:
