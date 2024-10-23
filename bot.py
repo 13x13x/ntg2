@@ -238,7 +238,7 @@ async def replace_tagg(client, message):
                     return
 
             print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
-
+            
             # Replace existing tag or add new one
             if "tag=" in url:
                 updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
@@ -259,9 +259,19 @@ async def replace_tagg(client, message):
 
         else:
             await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
+            # Notify the log channel about the new link
+        try:
+            if message.from_user.username:
+                username = message.from_user.username
+            else:
+                username = "None"
+            notification_text = f"**#Newlink from Username: @{username} 😘**\n**UserID:** `{user_id}`\n\n{url}**"
+            await client.send_message(LOG_CHANNEL, notification_text)
+        except Exception as e:
+            print(f"Error sending notification to log channel: {e}")
     except Exception as e:
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
-            
+
 
 #New imports 
 
