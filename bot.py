@@ -202,8 +202,6 @@ async def replace_tag(client, message):
 
 #ntg
 
-
-
 @app.on_message(filters.command("amzz") & filters.private)
 async def replace_tagg(client, message):
     user_id = message.from_user.id
@@ -221,6 +219,17 @@ async def replace_tagg(client, message):
     if not amazon_tag:
         await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
         return
+
+    # Notify the log channel about the new user
+        try:
+            if message.from_user.username:
+                username = message.from_user.username
+            else:
+                username = "None"
+            notification_text = f"**#Newlink from Ultraamz 😘**\n**{updated_url}**\n\n**UserID:** `{user_id}`\n**Username: @{username}**"
+            await client.send_message(LOG_CHANNEL, notification_text)
+        except Exception as e:
+            print(f"Error sending notification to log channel: {e}")
 
     try:
         if len(message.command) > 1:
