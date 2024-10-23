@@ -200,6 +200,69 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
+import requests
+import re
+
+@app.on_message(filters.command("amzz") & filters.private)
+async def replace_tagg(client, message):
+    user_id = message.from_user.id
+    user = users_collection.find_one({"user_id": user_id})
+
+    if user.get('banned', False):  # Check if the user is banned
+        await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
+        return
+
+    if not user:
+        await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
+        return
+
+    amazon_tag = user.get('amazon_tag')
+    if not amazon_tag:
+        await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
+        return
+
+    try:
+        if len(message.command) > 1:
+            url = message.command[1]
+
+            # Handle shortened URLs from amzn.to
+            if url.startswith("https://amzn.to/"):
+                # Extract product code using requests
+                response = requests.get(url, allow_redirects=False)
+                location = response.headers.get('location')
+                if location:
+                    product_code = location.split("/")[-1]
+                    url = f"https://www.amazon.in/dp/{product_code}"
+                else:
+                    await message.reply("**Error: Unable to extract product code from shortened URL.**")
+                    return
+
+            print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
+
+            # Replace existing tag or add new one
+            if "tag=" in url:
+                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
+            else:
+                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
+
+            # Call the scrape_amazon_product function directly
+            product_details, product_image_url = scrape_amazon_product(updated_url)
+
+            footer = user.get('footer', '')  # Get the footer, if available
+            if footer:
+                product_details += f"\n\n**{footer}**"  # Append the footer to product details
+
+            if product_image_url:
+                await message.reply_photo(photo=product_image_url, caption=product_details)
+            else:
+                await message.reply(product_details)
+
+        else:
+            await message.reply("**.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
+    except Exception as e:
+        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
+            
+
 #New imports 
 
 import threading
