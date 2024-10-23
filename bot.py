@@ -167,7 +167,7 @@ async def replace_tag(client, message):
         return
 
     if not user:
-        await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
+        await message.reply("**✨ Please /start Bot**")
         return
 
     amazon_tag = user.get('amazon_tag')
@@ -217,7 +217,7 @@ async def replace_tag(client, message):
                 await message.reply(product_details)
 
         else:
-            await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
+            await message.reply("**🚶🏻.. Please Send Vaild Amazon URL**")
 
         # Log the new link to the channel
         try:
@@ -286,7 +286,7 @@ def create_thumbnail_with_text(product_image_url):
         # Define the text and position
         text = "BOT: @Ultraamzbot"
         text_color = (0, 0, 0)  # Black color
-        text_position = (10, bg_h - font_size - 10)  # Bottom left corner with some padding
+        text_position = (10, bg_h - font_size - 13)  # Bottom left corner with some padding
 
         # Add the text to the image
         draw.text(text_position, text, fill=text_color, font=font)
@@ -415,7 +415,7 @@ def scrape_multiple_products(urls):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
+            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**")
             return
 
         url = message.command[1]
@@ -430,7 +430,7 @@ async def scrape(client, message):
             return
 
         if not user:
-            await message.reply("**✨ ᴘʟᴇᴀsᴇ /start ʙᴏᴛ**")
+            await message.reply("**✨ Please /start Bot**")
             return
 
         footer = user.get('footer', '')  # Get the footer, if available
@@ -542,7 +542,7 @@ async def add_footer(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": True}})
 
     # Send initial message to prompt the user to send the footer text
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `share & join @channel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `Share & Join @Yourchannel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     # Wait for 60 seconds
     await sleep(60)
