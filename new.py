@@ -81,7 +81,7 @@ async def ban_user(client, message, users_collection, OWNER_ID):
     try:
         result = users_collection.update_one({"user_id": user_id}, {"$set": {"banned": True}})
         if result.modified_count > 0:
-            await client.send_message(user_id, "**🙃 ᴘʟᴇᴀsᴇ ɴᴏᴛᴇ: ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ. ᴀᴛᴛᴇᴍᴘᴛ ᴛᴏ ᴜsᴇ ᴏʀ ᴄᴏᴍᴍᴀɴᴅs ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ 🤫**")
+            await client.send_message(user_id, "**Subscription End Now**\n\n**Please check /why for full information**")
             await message.reply(f"**User {user_id} has been banned**")
         else:
             await message.reply(f"**User {user_id} is already banned**")
