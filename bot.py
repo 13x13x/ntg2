@@ -257,10 +257,10 @@ async def replace_tagg(client, message):
                 product_details += f"\n\n**{footer}**"  # Append the footer to product details
 
             if product_image_url:
-                await message.reply_photo(photo=product_(product_details)
-
-        else:("**.. 🅿️ʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪ(f"**Error in /amz & /amzpd command: {e}**")
-            
+                await message.reply("**🚶🏻.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
+    except Exception as e:
+        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
+        
 
 #New imports 
 
