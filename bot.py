@@ -200,8 +200,7 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error in /amz & /amzpd command: {e}**")
 
-import requests
-import re
+#ntg
 
 @app.on_message(filters.command("amzz") & filters.private)
 async def replace_tagg(client, message):
@@ -218,7 +217,7 @@ async def replace_tagg(client, message):
 
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴɢs ᴜsɪɴɢ ᴛʜɪs /start**")
+        await message.reply("** ᴘʟᴇᴀsᴇ ᴀᴅᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ғʀᴏᴍ ᴛʜᴇ ᴜsᴇʀ sᴇᴛᴛɪɴgs ᴜsɪɴɢ ᴛʜɪs /start**")
         return
 
     try:
@@ -239,11 +238,16 @@ async def replace_tagg(client, message):
 
             print(f"Processing URL: {url} for user {user_id} with tag {amazon_tag}")
 
+            # URL Cleaning (Optional but recommended)
+            # - Remove unnecessary query parameters
+            # - Consider using a library like `urlparse` for more control
+            cleaned_url = url.split('?')[0]  # Simple approach, may need refinement
+
             # Replace existing tag or add new one
-            if "tag=" in url:
-                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)  # Replace the existing tag
+            if "tag=" in cleaned_url:
+                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', cleaned_url)  # Replace the existing tag
             else:
-                updated_url = url + f"&tag={amazon_tag}"  # Append the tag if not present
+                updated_url = cleaned_url + f"&tag={amazon_tag}"  # Append the tag if not present
 
             # Call the scrape_amazon_product function directly
             product_details, product_image_url = scrape_amazon_product(updated_url)
@@ -253,14 +257,9 @@ async def replace_tagg(client, message):
                 product_details += f"\n\n**{footer}**"  # Append the footer to product details
 
             if product_image_url:
-                await message.reply_photo(photo=product_image_url, caption=product_details)
-            else:
-                await message.reply(product_details)
+                await message.reply_photo(photo=product_(product_details)
 
-        else:
-            await message.reply("**.. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴀᴍᴀᴢᴏɴ ᴜʀʟ**")
-    except Exception as e:
-        await message.reply(f"**Error in /amz & /amzpd command: {e}**")
+        else:("**.. 🅿️ʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪ(f"**Error in /amz & /amzpd command: {e}**")
             
 
 #New imports 
