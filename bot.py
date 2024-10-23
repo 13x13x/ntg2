@@ -118,13 +118,9 @@ async def start(client, message):
     # Check if user exists in the database
     user = users_collection.find_one({"user_id": user_id})
     if not user:
-        # Add new user to the users_collection
-        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None})
+        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None, "banned": True})
+        print(f"User {user_id} added and banned automatically")  # Debugging line": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} Added in the database")  # Debugging line
-
-        # Automatically add new user to the ban_user collection
-        ban_user.insert_one({"user_id": user_id})
-        print(f"New user {user_id} automatically added to the ban_user collection")  # Debugging line
 
         # Notify the log channel about the new user
         try:
@@ -132,7 +128,7 @@ async def start(client, message):
                 username = message.from_user.username
             else:
                 username = "Nonee"
-            notification_text = f"**#NewUser from Ultraamz 🚶🏻**\n**UserID:** `{user_id}`\n**Username: @{username}**"
+            notification_text = f"**#NewUser from Ultraamz 😘**\n**UserID:** `{user_id}`\n**Username: @{username}**"
             await client.send_message(LOG_CHANNEL, notification_text)
         except Exception as e:
             print(f"Error sending notification to log channel: {e}")
