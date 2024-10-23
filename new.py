@@ -112,7 +112,7 @@ async def unban_user(client, message, users_collection, OWNER_ID):
     try:
         result = users_collection.update_one({"user_id": user_id}, {"$set": {"banned": False}})
         if result.modified_count > 0:
-            await client.send_message(user_id, "**😉 ᴘʟᴇᴀsᴇ ɴᴏᴛᴇ: ʏᴏᴜ ᴀʀᴇ ᴜɴʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ. ʏᴏᴜ ᴀʀᴇ ɴᴏᴡ ʟɪғᴛᴇʀ ᴛᴏ ᴜsᴇ ɪᴛ! ʜᴀᴘᴘʏ ᴜsɪɴɢ! 🎉**")
+            await client.send_message(user_id, "**One Month Subscription Added ✅**")
             await message.reply(f"**User {user_id} has been unbanned**")
         else:
             await message.reply(f"**User {user_id} was not banned**")
