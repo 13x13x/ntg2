@@ -21,7 +21,7 @@ from pyrogram.errors import PeerIdInvalid  # Import the specific error
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://shopngodeals:ultraamz@cluster0.wn2wr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 5549620776
-LOG_CHANNEL = -1002374576271
+LOG_CHANNEL = -1001998686767
 
 # Telegram API credentials
 api_id = 24972774
