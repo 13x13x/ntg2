@@ -574,7 +574,7 @@ async def add_channel(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": True}})
 
     # Send initial message to prompt the user to send the footer text
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `Share & Join @Yourchannel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴛᴏ sᴀᴠᴇ!**\n\n**ɪᴍᴘᴏʀᴛᴀɴᴛ sᴛᴇᴘs:**\n\n**ᴘʀᴏᴠɪᴅᴇ ᴏɴʟʏ ᴛʜᴇ ᴘᴜʙʟɪᴄ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ**\n\n**ᴇxᴀᴍᴘʟᴇ:** `@PIFDealss`\n\n**ɴᴏᴛᴇ: ɪғ ᴛʜᴇ ʙᴏᴛ ɪs ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ, ᴛʜᴇ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ғᴇᴀᴛᴜʀᴇ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ**\n\n**(ʏᴏᴜ ʜᴀᴠᴇ 60 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ)**")
 
     # Wait for 60 seconds
     await sleep(60)
@@ -584,7 +584,7 @@ async def add_channel(client, callback_query):
 
     if user_data and user_data.get("awaiting_channel"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": False}})
-        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
 # Consolidated capture handler for tag and footer
 @app.on_message(filters.text & filters.private)
