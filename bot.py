@@ -57,13 +57,13 @@ async def handle_log(client, message):
 
         # Check if the log file exists
         if os.path.exists(log_file_path):
-            await message.reply_document(document=log_file_path, caption="**Here is your log file**")
+            await message.reply_document(document=log_file_path, caption="Here is your log file.")
         else:
             await message.reply_text("Log file not found!")
     else:
         sticker_id = "CAACAgUAAxkBAAKFNmcZuRNvV7Oa8xWprA-luzKr2zuaAAIXBgACjcxZVsSdXOWbO_vyNgQ"
-        await message.reply_sticker(sticker_id, caption="**Go Do Some Work 🚶🏻 Don't Time Waste Here**")
-
+        await message.reply_sticker(sticker_id)
+        await message.reply_text("**Go do some work 🚶🏻 Don't time waste here**")  # Send caption as a separate message
 
 # Handler for the /why command
 @app.on_message(filters.command("why") & filters.private)
