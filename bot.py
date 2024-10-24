@@ -18,6 +18,8 @@ from new import broadcast, ban_user, unban_user, user_stats
 
 from pyrogram.errors import PeerIdInvalid  # Import the specific error
 
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
 # MongoDB URI and Owner ID
 MONGO_URI = "mongodb+srv://shopngodeals:ultraamz@cluster0.wn2wr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = 5549620776
@@ -157,54 +159,63 @@ async def start(client, message):
         print(f"Error sending message: {e}")
 
 #ntg
-
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
-    if user.get('banned', False):  # Check if the user is banned
+    # Check if user is banned
+    if user and user.get('banned', False):
         await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
         return
 
+    # Ensure user exists and has an Amazon tag
     if not user:
         await message.reply("**✨ Please /start Bot**")
         return
-
+    
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please Add Your Amazon Tag form User Settings Using This /start**")
+        await message.reply("**Please Add Your Amazon Tag in User Settings Using This /start**")
         return
 
-    try:
-        if len(message.command) > 1:
-            url = message.command[1]
+    if len(message.command) > 1:
+        url = message.command[1]
 
-            # Handle amzn.to short URLs
-            if url.startswith("https://amzn.to/"):
-                try:
-                    response = requests.get(url, allow_redirects=False)
-                    location = response.headers.get('location')
-                    if location:
-                        url = location
-                    else:
-                        await message.reply("**Error: Unable to extract product code from shortened URL.**")
-                        return
-                except Exception as e:
-                    await message.reply(f"**Error resolving shortened URL: {e}**")
+        # Handle amzn.to and amzn.in short URLs
+        if url.startswith("https://amzn.to/") or url.startswith("https://amzn.in/"):
+            try:
+                response = requests.get(url, allow_redirects=False)
+                location = response.headers.get('location')
+                if location:
+                    url = location
+                else:
+                    await message.reply("**Error: Unable to extract product code from shortened URL.**")
                     return
-
-            # Ensure valid product URL format for further processing
-            if not re.search(r'/dp/([A-Z0-9]{10})', url):
-                await message.reply("**Invalid URL: Please provide a valid Amazon product URL.**")
+            except Exception as e:
+                await message.reply(f"**Error resolving shortened URL: {e}**")
                 return
 
-            # Replace existing Amazon tag or append it
-            if "tag=" in url:
-                updated_url = re.sub(r'tag=[^&]+', f'tag={amazon_tag}', url)
-            else:
-                updated_url = url + f"&tag={amazon_tag}"
+        # Validate product URL format
+        if not re.search(r'/dp/([A-Z0-9]{10})', url):
+            await message.reply("**Invalid URL: Please provide a valid Amazon product URL.**")
+            return
 
+        # Modify the URL with the Amazon tag
+        url_parts = list(urlparse(url))
+        query_params = parse_qs(url_parts[4])
+
+        # Update or add the tag parameter
+        query_params['tag'] = [amazon_tag]
+        
+        # Remove duplicate ref parameters
+        query_params = {key: value for key, value in query_params.items() if key != 'ref'}
+
+        # Rebuild the query string
+        url_parts[4] = urlencode(query_params, doseq=True)
+        updated_url = urlunparse(url_parts)
+
+        try:
             # Call the scrape_amazon_product function to fetch product details
             product_details, product_image_url = scrape_amazon_product(updated_url)
 
@@ -217,21 +228,17 @@ async def replace_tag(client, message):
             else:
                 await message.reply(product_details)
 
-        else:
-            await message.reply("**🚶🏻.. Please Send Vaild Amazon URL**")
-
-        # Log the new link to the channel
-        try:
-            username = message.from_user.username if message.from_user.username else "Nonee"
+            # Log the new link to the channel
+            username = message.from_user.username or "None"
             notification_text = f"**#Newlink from @{username} 😘**\n**UserID:** `{user_id}`\n\n{url}**"
             await client.send_message(LOG_CHANNEL, notification_text)
+
         except Exception as e:
-            print(f"Error sending notification to log channel: {e}")
+            await message.reply(f"**Error fetching product details: {e}**")
+    else:
+        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**")
 
-    except Exception as e:
-        await message.reply(f"**Error in /amzz command: {e}**")
-
-#New imports 
+#new
 
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -251,7 +258,7 @@ non_numeric_pattern = re.compile(r'[^\d.]')
 # Load the Roboto font once
 try:
     font_path = "fonts/Roboto-Bold.ttf"  # Ensure this path is correct
-    font_size = 17
+    font_size = 15
     font = ImageFont.truetype(font_path, font_size)
 except IOError:
     print("Error: Font file not found. Please check the font path.")
