@@ -610,6 +610,14 @@ async def capture_tag_or_footer(client, message):
             await message.reply("**😘 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             return
 
+        # Check if awaiting a channel 
+        if user.get('awaiting_channel'):
+            # Save the footer and reset awaiting_footer to False
+            users_collection.update_one({"user_id": user_id}, {"$set": {"footer": message.text, "awaiting_channel": False}})
+            await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+            return
+            
+
 # Handle Remove Tag
 @app.on_callback_query(filters.regex("remove_tag"))
 async def remove_tag(client, callback_query):
