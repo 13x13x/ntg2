@@ -50,33 +50,13 @@ app = Client(
 )
 
 #premium
-import os
 
-# Define the log file path dynamically
-log_file_path = os.path.join(os.getcwd(), "log.txt")
-
-@app.on_message(filters.command("log") & filters.private)
-async def handle_log(client, message):
-    if message.from_user.id == OWNER_ID:  # Check if the user is the OWNER
-
-        # Check if the log file exists; if not, create it
-        if not os.path.exists(log_file_path):
-            with open(log_file_path, 'w') as f:
-                f.write("Log file created.\n")  # Add initial content or leave empty
-
-        # Now check if the log file exists and send it
-        await message.reply_document(document=log_file_path, caption="Here is your log file.")
-    else:
-        sticker_id = "CAACAgUAAxkBAAKFNmcZuRNvV7Oa8xWprA-luzKr2zuaAAIXBgACjcxZVsSdXOWbO_vyNgQ"
-        await message.reply_sticker(sticker_id)
-        await message.reply_text("**Go Do Some Work 🚶🏻 Don't Time Waste Here**")
-        
 # Handler for the /why command
 @app.on_message(filters.command("why") & filters.private)
 async def why_command(client, message):
     response_text = (
         "**🙏🏻 Subscription Required For Bot Access**\n\n"
-        "**Dear Valued User,**\n\n"
+        "**Dear User,**\n\n"
         "**We regret to inform you that you currently do not have access to the features of our bot** "
         "**To enjoy full functionality, we kindly invite you to purchase a subscription from the owner**\n\n"
         "**We offer a flexible Monthly Subscription Plan designed to cater to your needs**\n\n"
@@ -158,7 +138,7 @@ async def start(client, message):
         print(f"User {user_id} already exists in the database")  # Debugging line
 
     # Welcome text without formatting
-    welcome_text = "**🛒 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs**"
+    welcome_text = "**🛒 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n↓↓ ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ↓↓**"
 
     # Create the inline keyboard
     keyboard = InlineKeyboardMarkup([
