@@ -57,14 +57,13 @@ async def handle_log(client, message):
 
         # Check if the log file exists
         if os.path.exists(log_file_path):
-            await message.reply_document(document=log_file_path, caption="Here is your log file.")
+            await message.reply_document(document=log_file_path, caption="**Here is your log file**")
         else:
             await message.reply_text("Log file not found!")
     else:
-        # Add your GIF URL or file ID here
-        gif_url = "https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif"  # Replace with your preferred GIF URL or file ID
-        await message.reply_animation(gif_url, caption="**You are not authorized to access the logs**")
-        
+        sticker_id = "CAACAgUAAxkBAAKFNmcZuRNvV7Oa8xWprA-luzKr2zuaAAIXBgACjcxZVsSdXOWbO_vyNgQ"
+        await message.reply_sticker(sticker_id, caption="**Go Do Some Work 🚶🏻 Don't Time Waste Here**")
+
 
 # Handler for the /why command
 @app.on_message(filters.command("why") & filters.private)
