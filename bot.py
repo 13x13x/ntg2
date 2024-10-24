@@ -50,21 +50,27 @@ app = Client(
 )
 
 #premium
+import os
+
+# Define the log file path dynamically
+log_file_path = os.path.join(os.getcwd(), "log.txt")
+
 @app.on_message(filters.command("log") & filters.private)
 async def handle_log(client, message):
     if message.from_user.id == OWNER_ID:  # Check if the user is the OWNER
-        log_file_path = "log.txt"  # Specify the path to your log file
 
-        # Check if the log file exists
-        if os.path.exists(log_file_path):
-            await message.reply_document(document=log_file_path, caption="Here is your log file.")
-        else:
-            await message.reply_text("Log file not found!")
+        # Check if the log file exists; if not, create it
+        if not os.path.exists(log_file_path):
+            with open(log_file_path, 'w') as f:
+                f.write("Log file created.\n")  # Add initial content or leave empty
+
+        # Now check if the log file exists and send it
+        await message.reply_document(document=log_file_path, caption="Here is your log file.")
     else:
         sticker_id = "CAACAgUAAxkBAAKFNmcZuRNvV7Oa8xWprA-luzKr2zuaAAIXBgACjcxZVsSdXOWbO_vyNgQ"
         await message.reply_sticker(sticker_id)
-        await message.reply_text("**Go do some work 🚶🏻 Don't time waste here**")  # Send caption as a separate message
-
+        await message.reply_text("**Go Do Some Work 🚶🏻 Don't Time Waste Here**")
+        
 # Handler for the /why command
 @app.on_message(filters.command("why") & filters.private)
 async def why_command(client, message):
