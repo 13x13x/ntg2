@@ -99,9 +99,10 @@ async def me(client, message):
             # Get other details from the database
             amazon_tag = user.get("amazon_tag", "None")
             footer = user.get("footer", "None")
+            channel = user.get("channel", "None")
 
             # Write the user details in the required format
-            f.write(f"{count}. {username} {user_id} {amazon_tag} {footer}\n")
+            f.write(f"{count}. {username} {user_id} {amazon_tag} {footer} {channel}\n")
             count += 1
 
     # Send the file to the bot
@@ -121,7 +122,7 @@ async def start(client, message):
     # Check if user exists in the database
     user = users_collection.find_one({"user_id": user_id})
     if not user:
-        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None, "banned": True})
+        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None, "channel": None, banned": True})
         print(f"User {user_id} added and banned automatically")  # Debugging line": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} Added in the database")  # Debugging line
 
@@ -483,6 +484,7 @@ async def user_settings(client, callback_query):
     user = users_collection.find_one({"user_id": user_id})
 
     amazon_tag = user.get('amazon_tag', 'Not set')
+    channel = user.get('channel', 'Not set')
     footer = user.get('footer', 'Not set')
     username = callback_query.from_user.username or "Unknown User"
 
@@ -507,9 +509,9 @@ async def user_settings(client, callback_query):
     await callback_query.edit_message_text(
         f"┌──── **㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs** ───\n"
         f"│\n"
-        f"├── **ɴᴀᴍᴇ :** `@{username}`\n"
-        f"├── **ᴀᴍᴀᴢᴏɴ ᴛᴀɢ :** `{amazon_tag}`\n"
-        f"├── **ғᴏᴏᴛᴇʀ :** `{footer}`\n"
+        f"├─ **ɴᴀᴍᴇ :** `@{username}`\n"
+        f"├─ **ᴀᴍᴀᴢᴏɴ ᴛᴀɢ :** `{amazon_tag}`\n"
+        f"├─ **ғᴏᴏᴛᴇʀ :** `{footer}`\n"
         f"│\n"
         f"└───────────────────\n\n"
         f"**📝 ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ sᴇᴛ, ᴇᴅɪᴛ, ᴏʀ ʀᴇᴍᴏᴠᴇ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ, ғᴏᴏᴛᴇʀ..**",
@@ -562,6 +564,28 @@ async def add_footer(client, callback_query):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": False}})
         await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
+#Autoforward
+
+@app.on_callback_query(filters.regex("add_channel"))
+async def add_channel(client, callback_query):
+    user_id = callback_query.from_user.id
+
+    # Set awaiting_footer to True for this user
+    users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": True}})
+
+    # Send initial message to prompt the user to send the footer text
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `Share & Join @Yourchannel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+
+    # Wait for 60 seconds
+    await sleep(60)
+
+    # Check if the user has sent the footer within the time limit
+    user_data = users_collection.find_one({"user_id": user_id})
+
+    if user_data and user_data.get("awaiting_channel"):
+        users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": False}})
+        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+
 # Consolidated capture handler for tag and footer
 @app.on_message(filters.text & filters.private)
 async def capture_tag_or_footer(client, message):
@@ -593,6 +617,12 @@ async def remove_tag(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": None}})
     await callback_query.answer("🙃 ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
+# Handle Remove auto forward 
+@app.on_callback_query(filters.regex("remove_channel"))
+async def remove_channel(client, callback_query):
+    user_id = callback_query.from_user.id
+    users_collection.update_one({"user_id": user_id}, {"$set": {"channel": None}})
+    await callback_query.answer("🙃 ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ʜᴀs ʙᴇᴇɴ sᴛᴏᴘᴘᴇᴅ")
 
 # Handle Remove Footer
 @app.on_callback_query(filters.regex("remove_footer"))
