@@ -28,12 +28,12 @@ LOG_CHANNEL = -1001998686767
 # Telegram API credentials
 api_id = 24972774
 api_hash = '188f227d40cdbfaa724f1f3cd059fd8b'
-bot_token = '7904938522:AAGQHW5RJ1t_3Bw3sXlg_sSr_Md2Mb4el6U'
+bot_token = '6246208865:AAEbf4RNlcCPwCWoYt4qnYmh79tsUGcctA4'
 
 # Initialize MongoDB client
 try:
     client = MongoClient(MONGO_URI)
-    db = client['lanja_db']
+    db = client['lanjaa_db']
     users_collection = db['users']
     print("Connected to MongoDB")  # Debugging line
 except ServerSelectionTimeoutError as e:
