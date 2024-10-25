@@ -162,7 +162,7 @@ async def start(client, message):
 #ntg
 
 @app.on_message(filters.command("amz") & filters.private)
-async def forward_amazon_product(client, message):
+async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
@@ -233,12 +233,6 @@ async def forward_amazon_product(client, message):
                 channel = user.get('channel', '')
                 if channel:
                     try:
-                        # Check if the user is an admin of the channel
-                        member = await client.get_chat_member(channel, user_id)
-                        if member.status not in ["administrator", "creator"]:
-                            await message.reply("**Error: You are not an admin of the channel to which you want to forward the product details.**")
-                            return
-                        
                         # Forward the message to the channel
                         await client.send_photo(chat_id=channel, photo=product_image_url, caption=product_details)
                     except Exception as e:
@@ -250,7 +244,7 @@ async def forward_amazon_product(client, message):
             await message.reply(f"**Error fetching product details: {e}**")
     else:
         await message.reply("**🚶🏻.. Please Send Valid Amazon URL**")
-
+        
 #new
 
 import threading
