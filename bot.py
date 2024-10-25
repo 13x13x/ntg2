@@ -310,7 +310,7 @@ def create_thumbnail_with_text(product_image_url):
         print(f"Error creating thumbnail: {e}")
         return None
 
-def scrape_amazon_product(url):
+def scrape_amazon_product(url, user_id):
     try:
         # Fetch the product page using the shared session
         response = session.get(url, timeout=10)
@@ -384,12 +384,31 @@ def scrape_amazon_product(url):
 
                     # Create white background thumbnail
                     product_thumbnail = create_thumbnail_with_text(product_image_url)
+
         # Final product details response
         product_details = f"🤯 **{product_name}**\n\n"
         product_details += discount_text  # Add discount only if available
         if mrp != 'not applicable':
             product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
         product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+
+        # Send product details to bot
+        send_to_telegram(user_id, product_details, product_thumbnail)
+
+        # Get the public channel from the database
+        channel = user.get('channel', '')
+
+        if channel:  # If the channel exists (is not None or False)
+            # Verify if the bot and user are admins in the public channel
+            if check_admin_status(user_id, channel):
+                # Forward post to public channel
+                send_to_telegram(channel, product_details, product_thumbnail)
+            else:
+                # Send error message to the user
+                send_to_telegram(user_id, "**Error: You need to be an admin in the public channel to post.**", None)
+        else:
+            # No channel stored, don't forward
+            send_to_telegram(user_id, "**No public channel associated with your account.**", None)
 
         return product_details, product_thumbnail
 
@@ -399,6 +418,29 @@ def scrape_amazon_product(url):
     except Exception as e:
         print(f"Error scraping product: {e}")
         return "**An unexpected error occurred. Please try again later.**", None
+
+
+def send_to_telegram(chat_id, message, thumbnail=None):
+    # Send the message to the specified chat_id (user or channel)
+    if thumbnail:
+        # If thumbnail exists, send it with the message
+        bot.send_photo(chat_id, thumbnail, caption=message)
+    else:
+        bot.send_message(chat_id, message)
+
+
+def check_admin_status(user_id, channel_id):
+    # Check if both the user and the bot are admins in the given public channel
+    try:
+        user_status = bot.get_chat_member(channel_id, user_id)
+        bot_status = bot.get_chat_member(channel_id, bot.get_me().id)
+
+        if user_status.status in ['administrator', 'creator'] and bot_status.status in ['administrator', 'creator']:
+            return True
+    except Exception as e:
+        print(f"Admin check failed: {e}")
+        return False
+    return False
 
 def scrape_multiple_products(urls):
     product_details_list = []
