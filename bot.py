@@ -601,6 +601,7 @@ async def add_channel(client, callback_query):
 
                                                                     
 # Consolidated capture handler for tag and footer
+
 @app.on_message(filters.text & filters.private)
 async def capture_tag_or_footer(client, message):
     user_id = message.from_user.id
@@ -626,6 +627,11 @@ async def capture_tag_or_footer(client, message):
             
         # Check if awaiting a channel username
         if user.get("awaiting_channel"):
+            # Validate the channel username
+            if not re.match(r"^@[A-Za-z]+$", message.text):
+                await message.reply("**❌ ɪɴᴠᴀʟɪᴅ ғᴏʀᴍᴀᴛ! ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ᴀ ᴠᴀʟɪᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ sᴛᴀʀᴛɪɴɢ ᴡɪᴛʜ @ ᴀɴᴅ ᴡɪᴛʜᴏᴜᴛ ɴᴜᴍʙᴇʀs.**")
+                return
+
             # Check if the channel username already exists
             existing_channel = users_collection.find_one({"channel": message.text})
 
@@ -636,7 +642,7 @@ async def capture_tag_or_footer(client, message):
                 # Save the channel username and reset awaiting_channel to False
                 users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
                 await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
-        
+
 # Handle Remove Tag
 @app.on_callback_query(filters.regex("remove_tag"))
 async def remove_tag(client, callback_query):
