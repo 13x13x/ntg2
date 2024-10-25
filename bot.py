@@ -162,7 +162,7 @@ async def start(client, message):
 #ntg
 
 @app.on_message(filters.command("amz") & filters.private)
-async def replace_tag(client, message):
+async def forward_amazon_product(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
@@ -209,7 +209,7 @@ async def replace_tag(client, message):
 
         # Update or add the tag parameter
         query_params['tag'] = [amazon_tag]
-        
+
         # Remove duplicate ref parameters
         query_params = {key: value for key, value in query_params.items() if key != 'ref'}
 
@@ -232,8 +232,8 @@ async def replace_tag(client, message):
                 # Forward the product details to the user's specified channel
                 channel = user.get('channel', '')
                 if channel:
-                    # Check if the user is an admin of the channel
                     try:
+                        # Check if the user is an admin of the channel
                         member = await client.get_chat_member(channel, user_id)
                         if member.status not in ["administrator", "creator"]:
                             await message.reply("**Error: You are not an admin of the channel to which you want to forward the product details.**")
