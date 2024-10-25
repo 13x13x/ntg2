@@ -218,7 +218,7 @@ async def replace_tag(client, message):
 
         try:
             # Call the scrape_amazon_product function to fetch product details
-            product_details, product_thumbnail = scrape_amazon_product(updated_url, user_id)
+            product_details, product_image_url = scrape_amazon_product(updated_url, user_id)
             
             footer = user.get('footer', '')
             if footer:
