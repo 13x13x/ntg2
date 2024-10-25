@@ -582,11 +582,11 @@ async def add_footer(client, callback_query):
 async def add_channel(client, callback_query):
     user_id = callback_query.from_user.id
 
-    # Set awaiting_footer to True for this user
+    # Set awaiting_channel to True for this user
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": True}})
 
-    # Send initial message to prompt the user to send the footer text
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴛᴏ sᴀᴠᴇ!**\n\n**ɪᴍᴘᴏʀᴛᴀɴᴛ sᴛᴇᴘs:**\n\n**ᴘʀᴏᴠɪᴅᴇ ᴏɴʟʏ ᴛʜᴇ ᴘᴜʙʟɪᴄ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ**\n\n**ᴇxᴀᴍᴘʟᴇ:** `@PIFDealss`\n\n**ɴᴏᴛᴇ: ɪғ ᴛʜᴇ ʙᴏᴛ ɪs ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ, ᴛʜᴇ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ғᴇᴀᴛᴜʀᴇ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ**\n\n**(ʏᴏᴜ ʜᴀᴠᴇ 60 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ)**")
+    # Send initial message to prompt the user to send the channel username
+    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴘʀᴏᴠɪᴅᴇ ᴏɴʟʏ ᴛʜᴇ ᴘᴜʙʟɪᴄ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ**\n\n**ᴇxᴀᴍᴘʟᴇ:** `@PIFDealss`\n\n**ɴᴏᴛᴇ: ɪғ ᴛʜᴇ ʙᴏᴛ ɪs ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ, ᴛʜᴇ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ғᴇᴀᴛᴜʀᴇ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ**\n\n**(ʏᴏᴜ ʜᴀᴠᴇ 60 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ)**")
 
     # Wait for 60 seconds
     await sleep(60)
@@ -597,7 +597,26 @@ async def add_channel(client, callback_query):
     if user_data and user_data.get("awaiting_channel"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": False}})
         await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        return
 
+@app.on_message(filters.user(user_id) & filters.text)
+async def handle_channel_username(client, message):
+    user_id = message.from_user.id
+    user_data = users_collection.find_one({"user_id": user_id})
+
+    if user_data and user_data.get("awaiting_channel"):
+        # Check if the channel username already exists
+        existing_channel = users_collection.find_one({"channel": message.text})
+
+        if existing_channel:
+            # If it exists, prompt the user to send a different one
+            await message.reply("**❌ ᴛʜɪs ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ɪs ᴀʟʀᴇᴀᴅʏ sᴀᴠᴇᴅ. ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴅɪғғᴇʀᴇɴᴛ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ!**")
+        else:
+            # Save the channel username and reset awaiting_channel to False
+            users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
+            await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+
+                                                                    
 # Consolidated capture handler for tag and footer
 @app.on_message(filters.text & filters.private)
 async def capture_tag_or_footer(client, message):
@@ -622,14 +641,7 @@ async def capture_tag_or_footer(client, message):
             await message.reply("**😘 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             return
 
-        # Check if awaiting a channel 
-        if user.get('awaiting_channel'):
-            # Save the footer and reset awaiting_footer to False
-            users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
-            await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
-            return
-            
-
+        
 # Handle Remove Tag
 @app.on_callback_query(filters.regex("remove_tag"))
 async def remove_tag(client, callback_query):
