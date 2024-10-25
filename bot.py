@@ -122,7 +122,7 @@ async def start(client, message):
     # Check if user exists in the database
     user = users_collection.find_one({"user_id": user_id})
     if not user:
-        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None, "channel": None, banned": True})
+        users_collection.insert_one({"user_id": user_id, "amazon_tag": None, "footer": None, "channel": None, "banned": True})
         print(f"User {user_id} added and banned automatically")  # Debugging line": user_id, "amazon_tag": None, "footer": None})
         print(f"User {user_id} Added in the database")  # Debugging line
 
