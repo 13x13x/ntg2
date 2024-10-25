@@ -599,23 +599,6 @@ async def add_channel(client, callback_query):
         await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
         return
 
-@app.on_message(filters.user(user_id) & filters.text)
-async def handle_channel_username(client, message):
-    user_id = message.from_user.id
-    user_data = users_collection.find_one({"user_id": user_id})
-
-    if user_data and user_data.get("awaiting_channel"):
-        # Check if the channel username already exists
-        existing_channel = users_collection.find_one({"channel": message.text})
-
-        if existing_channel:
-            # If it exists, prompt the user to send a different one
-            await message.reply("**❌ ᴛʜɪs ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ɪs ᴀʟʀᴇᴀᴅʏ sᴀᴠᴇᴅ. ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴅɪғғᴇʀᴇɴᴛ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ!**")
-        else:
-            # Save the channel username and reset awaiting_channel to False
-            users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
-            await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
-
                                                                     
 # Consolidated capture handler for tag and footer
 @app.on_message(filters.text & filters.private)
@@ -640,6 +623,18 @@ async def capture_tag_or_footer(client, message):
             users_collection.update_one({"user_id": user_id}, {"$set": {"footer": message.text, "awaiting_footer": False}})
             await message.reply("**😘 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             return
+            
+        if user_data and user_data.get("awaiting_channel"):
+        # Check if the channel username already exists
+        existing_channel = users_collection.find_one({"channel": message.text})
+
+        if existing_channel:
+            # If it exists, prompt the user to send a different one
+            await message.reply("**❌ ᴛʜɪs ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ɪs ᴀʟʀᴇᴀᴅʏ sᴀᴠᴇᴅ. ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴅɪғғᴇʀᴇɴᴛ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ!**")
+        else:
+            # Save the channel username and reset awaiting_channel to False
+            users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
+            await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
 
         
 # Handle Remove Tag
