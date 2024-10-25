@@ -161,8 +161,6 @@ async def start(client, message):
 
 #ntg
 
-LOG_CHANNEL = "@your_log_channel"  # Replace with your actual log channel username or ID
-
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
     user_id = message.from_user.id
