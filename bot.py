@@ -161,6 +161,8 @@ async def start(client, message):
 
 #ntg
 
+LOG_CHANNEL = "@your_log_channel"  # Replace with your actual log channel username or ID
+
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
     user_id = message.from_user.id
@@ -173,12 +175,12 @@ async def replace_tag(client, message):
 
     # Ensure user exists and has an Amazon tag
     if not user:
-        await message.reply("**✨ Please /start Bot**")
+        await message.reply("**✨ Please /start Bot Again**")
         return
     
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
-        await message.reply("**Please Add Your Amazon Tag in User Settings Using This /start**")
+        await message.reply("**Please /start Add Your Amazon Tag in User Settings**")
         return
 
     if len(message.command) > 1:
@@ -200,7 +202,7 @@ async def replace_tag(client, message):
 
         # Validate product URL format
         if not re.search(r'/dp/([A-Z0-9]{10})', url):
-            await message.reply("**Invalid URL: Please provide a valid Amazon product URL.**")
+            await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
             return
 
         # Modify the URL with the Amazon tag
@@ -237,6 +239,12 @@ async def replace_tag(client, message):
                         await client.send_photo(chat_id=channel, photo=product_image_url, caption=product_details)
                     except Exception as e:
                         await message.reply(f"**Error forwarding to channel: {e}**")
+
+                # Log the new link to the log channel
+                username = message.from_user.username or "None"
+                notification_text = f"**#Newlink from @{username} 😘**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
+                await client.send_message(LOG_CHANNEL, notification_text)
+
             else:
                 await message.reply("**No channel specified for forwarding. Skipping auto-forwarding.**")
 
@@ -244,7 +252,7 @@ async def replace_tag(client, message):
             await message.reply(f"**Error fetching product details: {e}**")
     else:
         await message.reply("**🚶🏻.. Please Send Valid Amazon URL**")
-        
+
 #new
 
 import threading
@@ -265,7 +273,7 @@ non_numeric_pattern = re.compile(r'[^\d.]')
 # Load the Roboto font once
 try:
     font_path = "fonts/Roboto-Bold.ttf"  # Ensure this path is correct
-    font_size = 25
+    font_size = 22
     font = ImageFont.truetype(font_path, font_size)
 except IOError:
     print("Error: Font file not found. Please check the font path.")
