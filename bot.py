@@ -160,6 +160,97 @@ async def start(client, message):
         print(f"Error sending message: {e}")
 
 #ntg
+
+@app.on_message(filters.command("amzz") & filters.private)
+async def replace_tagg(client, message):
+    user_id = message.from_user.id
+    user = users_collection.find_one({"user_id": user_id})
+
+    # Check if user is banned
+    if user and user.get('banned', False):
+        await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
+        return
+
+    # Ensure user exists and has an Amazon tag
+    if not user:
+        await message.reply("**✨ Please /start Bot**")
+        return
+    
+    amazon_tag = user.get('amazon_tag')
+    if not amazon_tag:
+        await message.reply("**Please Add Your Amazon Tag in User Settings Using This /start**")
+        return
+
+    if len(message.command) > 1:
+        url = message.command[1]
+
+        # Handle amzn.to and amzn.in short URLs
+        if url.startswith("https://amzn.to/") or url.startswith("https://amzn.in/"):
+            try:
+                response = requests.get(url, allow_redirects=False)
+                location = response.headers.get('location')
+                if location:
+                    url = location
+                else:
+                    await message.reply("**Error: Unable to extract product code from shortened URL.**")
+                    return
+            except Exception as e:
+                await message.reply(f"**Error resolving shortened URL: {e}**")
+                return
+
+        # Validate product URL format
+        if not re.search(r'/dp/([A-Z0-9]{10})', url):
+            await message.reply("**Invalid URL: Please provide a valid Amazon product URL.**")
+            return
+
+        # Modify the URL with the Amazon tag
+        url_parts = list(urlparse(url))
+        query_params = parse_qs(url_parts[4])
+
+        # Update or add the tag parameter
+        query_params['tag'] = [amazon_tag]
+        
+        # Remove duplicate ref parameters
+        query_params = {key: value for key, value in query_params.items() if key != 'ref'}
+
+        # Rebuild the query string
+        url_parts[4] = urlencode(query_params, doseq=True)
+        updated_url = urlunparse(url_parts)
+
+        try:
+            # Call the scrape_amazon_product function to fetch product details
+            product_details, product_image_url = scrape_amazon_product(updated_url)
+
+            footer = user.get('footer', '')
+            if footer:
+                product_details += f"\n\n**{footer}**"
+
+            if product_image_url:
+                # Send the product details to the user
+                await message.reply_photo(photo=product_image_url, caption=product_details)
+
+                # Forward the product details to the user's specified channel
+                channel = user.get('channel', '')
+                if channel:
+                    # Check if the user is an admin of the channel
+                    try:
+                        member = await client.get_chat_member(channel, user_id)
+                        if member.status not in ["administrator", "creator"]:
+                            await message.reply("**Error: You are not an admin of the channel to which you want to forward the product details.**")
+                            return
+                        
+                        # Forward the message to the channel
+                        await client.send_photo(chat_id=channel, photo=product_image_url, caption=product_details)
+                    except Exception as e:
+                        await message.reply(f"**Error forwarding to channel: {e}**")
+            else:
+                await message.reply("**No channel specified for forwarding. Skipping auto-forwarding.**")
+
+        except Exception as e:
+            await message.reply(f"**Error fetching product details: {e}**")
+    else:
+        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**")
+
 @app.on_message(filters.command("amz") & filters.private)
 async def replace_tag(client, message):
     user_id = message.from_user.id
@@ -259,7 +350,7 @@ non_numeric_pattern = re.compile(r'[^\d.]')
 # Load the Roboto font once
 try:
     font_path = "fonts/Roboto-Bold.ttf"  # Ensure this path is correct
-    font_size = 20
+    font_size = 25
     font = ImageFont.truetype(font_path, font_size)
 except IOError:
     print("Error: Font file not found. Please check the font path.")
@@ -310,7 +401,7 @@ def create_thumbnail_with_text(product_image_url):
         print(f"Error creating thumbnail: {e}")
         return None
 
-def scrape_amazon_product(url, user_id):
+def scrape_amazon_product(url):
     try:
         # Fetch the product page using the shared session
         response = session.get(url, timeout=10)
@@ -384,31 +475,12 @@ def scrape_amazon_product(url, user_id):
 
                     # Create white background thumbnail
                     product_thumbnail = create_thumbnail_with_text(product_image_url)
-
         # Final product details response
         product_details = f"🤯 **{product_name}**\n\n"
         product_details += discount_text  # Add discount only if available
         if mrp != 'not applicable':
             product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
         product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
-
-        # Send product details to bot
-        send_to_telegram(user_id, product_details, product_thumbnail)
-
-        # Get the public channel from the database
-        channel = user.get('channel', '')
-
-        if channel:  # If the channel exists (is not None or False)
-            # Verify if the bot and user are admins in the public channel
-            if check_admin_status(user_id, channel):
-                # Forward post to public channel
-                send_to_telegram(channel, product_details, product_thumbnail)
-            else:
-                # Send error message to the user
-                send_to_telegram(user_id, "**Error: You need to be an admin in the public channel to post.**", None)
-        else:
-            # No channel stored, don't forward
-            send_to_telegram(user_id, "**No public channel associated with your account.**", None)
 
         return product_details, product_thumbnail
 
@@ -418,29 +490,7 @@ def scrape_amazon_product(url, user_id):
     except Exception as e:
         print(f"Error scraping product: {e}")
         return "**An unexpected error occurred. Please try again later.**", None
-
-
-def send_to_telegram(chat_id, message, thumbnail=None):
-    # Send the message to the specified chat_id (user or channel)
-    if thumbnail:
-        # If thumbnail exists, send it with the message
-        bot.send_photo(chat_id, thumbnail, caption=message)
-    else:
-        bot.send_message(chat_id, message)
-
-
-def check_admin_status(user_id, channel_id):
-    # Check if both the user and the bot are admins in the given public channel
-    try:
-        user_status = bot.get_chat_member(channel_id, user_id)
-        bot_status = bot.get_chat_member(channel_id, bot.get_me().id)
-
-        if user_status.status in ['administrator', 'creator'] and bot_status.status in ['administrator', 'creator']:
-            return True
-    except Exception as e:
-        print(f"Admin check failed: {e}")
-        return False
-    return False
+        
 
 def scrape_multiple_products(urls):
     product_details_list = []
