@@ -543,22 +543,27 @@ async def user_settings(client, callback_query):
             InlineKeyboardButton("ʀᴇᴍᴏᴠᴇ ғᴏᴏᴛᴇʀ", callback_data="remove_footer")
         ],
         [
+            InlineKeyboardButton("ᴇɴᴀʙʟᴇ ғᴏʀᴡᴀʀᴅ", callback_data="add_channel"),
+            InlineKeyboardButton("ᴅɪsᴀʙʟᴇ ғᴏʀᴡᴀʀᴅ", callback_data="remove_channel")
+        ],
+        [
             InlineKeyboardButton("ʙᴏᴛ ᴜᴘᴅᴀᴛᴇs", url="https://t.me/Ultraamzinfo")  # Replace with your channel link
         ]
     ])
 
-    # Update the message to provide more explanation using callback_query
-    await callback_query.edit_message_text(
-        f"┌──── **㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs** ───\n"
-        f"│\n"
-        f"├─ **ɴᴀᴍᴇ :** `@{username}`\n"
-        f"├─ **ᴀᴍᴀᴢᴏɴ ᴛᴀɢ :** `{amazon_tag}`\n"
-        f"├─ **ғᴏᴏᴛᴇʀ :** `{footer}`\n"
-        f"│\n"
-        f"└───────────────────\n\n"
-        f"**📝 ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ sᴇᴛ, ᴇᴅɪᴛ, ᴏʀ ʀᴇᴍᴏᴠᴇ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ, ғᴏᴏᴛᴇʀ..**",
-        reply_markup=keyboard
-    )
+# Update the message to include auto forwarding details
+await callback_query.edit_message_text(
+    f"┌──── **㊂ ᴜsᴇʀ sᴇᴛᴛɪɴɢs** ───\n"
+    f"│\n"
+    f"├─ **ɴᴀᴍᴇ :** `@{username}`\n"
+    f"├─ **ᴀᴍᴀᴢᴏɴ ᴛᴀɢ :** `{amazon_tag}`\n"
+    f"├─ **ғᴏᴏᴛᴇʀ :** `{footer}`\n"
+    f"├─ **ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ᴛᴏ ᴄʜᴀɴɴᴇʟ :** `{channel}`\n"
+    f"│\n"
+    f"└───────────────────\n\n"
+    f"**📝 ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ sᴇᴛ, ᴇᴅɪᴛ, ᴏʀ ʀᴇᴍᴏᴠᴇ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ, ғᴏᴏᴛᴇʀ, ᴀɴᴅ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ..**",
+    reply_markup=keyboard
+)
 
 # vaild 
 
