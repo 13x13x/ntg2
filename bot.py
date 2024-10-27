@@ -242,6 +242,9 @@ async def replace_tag(client, message):
                 username = message.from_user.username or "None"
                 notification_text = f"**#Newlink from @{username} 😘**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
                 await client.send_message(LOG_CHANNEL, notification_text)
+            
+            else:
+                await message.reply("**No channel specified for forwarding. Skipping auto-forwarding.**")
 
         except Exception as e:
             await message.reply(f"**Error fetching product details: {e}**")
