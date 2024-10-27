@@ -6,6 +6,6 @@ pillow==10.3.0
 dnspython==2.7.0
 pyaes==1.6.1
 pymongo==4.10.1
-beautifulsoup4==4.13.0
-nest_asyncio==1.5.7
+beautifulsoup4
+nest_asyncio
 requests
