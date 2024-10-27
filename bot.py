@@ -271,7 +271,7 @@ non_numeric_pattern = re.compile(r'[^\d.]')
 # Load the Roboto font once
 try:
     font_path = "fonts/Roboto-Bold.ttf"  # Ensure this path is correct
-    font_size = 22
+    font_size = 15
     font = ImageFont.truetype(font_path, font_size)
 except IOError:
     print("Error: Font file not found. Please check the font path.")
