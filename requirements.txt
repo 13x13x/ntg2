@@ -1,9 +1,11 @@
-pyrogram
-tgcrypto
-aiohttp
-lxml
+pyrogram==2.0.106
+tgcrypto==1.2.5
+aiohttp==3.8.5
+lxml==4.9.3
 pillow==10.3.0
-pymongo    # or the latest version you're using
-beautifulsoup4  # or the latest version you're using
-requests # or the latest version you're using
-nest_asyncio
+dnspython==2.7.0
+pyaes==1.6.1
+pymongo==4.10.1
+beautifulsoup4==4.13.0
+nest_asyncio==1.5.7
+requests
