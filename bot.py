@@ -433,8 +433,8 @@ def scrape_multiple_products(urls):
     return product_details_list, product_thumbnails
 
 # Command to scrape Amazon product
-@app.on_message(filters.command("amz") & (filters.private | filters.group))
-async def replace_tag(client, message):
+@app.on_message(filters.command("amzpd") & (filters.private | filters.group))
+async def scrape(client, message):
     try:
         if len(message.command) < 2:
             await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**")
