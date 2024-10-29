@@ -447,9 +447,6 @@ async def scrape(client, message):
         user_id = message.from_user.id  # Get the user ID from the message
         user = users_collection.find_one({"user_id": user_id})
 
-        if user.get('banned', False):  # Check if the user is banned
-            await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
-            return
 
         if not user:
             await message.reply("**✨ Please /start Bot**")
@@ -465,7 +462,7 @@ async def scrape(client, message):
             await message.reply(product_details)
 
     except Exception as e:
-        await message.reply(f"**An error occurred while scraping: {e}**")
+        await message.reply(f"**An error occurred while getting: {e}**")
             
  
 @app.on_message(filters.command("bcast") & filters.user(OWNER_ID))
