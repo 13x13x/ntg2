@@ -13,7 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the bot code, new.py, and Fonts folder with Roboto-Bold.ttf into the container
 COPY bot.py /app/
 COPY new.py /app/
-COPY Fonts
 
 # Command to run the bot
 CMD ["python3", "bot.py"]
