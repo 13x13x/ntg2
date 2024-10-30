@@ -189,7 +189,7 @@ async def replace_tag(client, message):
     elif message.reply_to_message:
         url = message.reply_to_message.text
     else:
-        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**\n\n**Example:** `/demo https://amzn.to/3Yx1ztU`")
+        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**\n\n**Example:** `/amz https://amzn.to/3Yx1ztU`")
         return
 
     # Handle amzn.to and amzn.in short URLs
@@ -200,7 +200,7 @@ async def replace_tag(client, message):
             if location:
                 url = location
             else:
-                await message.reply("**Error: Unable to extract product code from shortened URL.**")
+                await message.reply("**Error: Unable to extract product from shortened URL**")
                 return
         except Exception as e:
             await message.reply(f"**Error resolving shortened URL: {e}**")
