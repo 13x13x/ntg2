@@ -444,7 +444,6 @@ def scrape_multiple_products(urls):
 
 # Command to scrape Amazon product
 @app.on_message(filters.command("demo") & (filters.private | filters.group))
-@app.on_message(filters.reply & (filters.private | filters.group))
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
