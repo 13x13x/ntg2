@@ -203,6 +203,11 @@ async def replace_tag(client, message):
             await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
             return
 
+        # Validate product URL format
+        if not re.search(r'/gp/([A-Z0-9]{10})', url):
+            await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
+            return
+
         # Modify the URL with the Amazon tag
         url_parts = list(urlparse(url))
         query_params = parse_qs(url_parts[4])
@@ -437,7 +442,7 @@ def scrape_multiple_products(urls):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**")
+            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**\n\n**Examaple:** `/demo https://amzn.to/3Yx1ztU`")
             return
 
         url = message.command[1]
