@@ -161,85 +161,98 @@ async def start(client, message):
 
 #ntg
 
-@app.on_message(filters.private & filters.text)
+# Function to process both command and reply messages with an Amazon link
 @app.on_message(filters.command("amz") & filters.private)
-@app.on_message(filters.reply & filters.private)
+@app.on_message(filters.reply & filters.private)  # New line to handle replies
 async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
 
+    # Check if user is banned
     if user and user.get('banned', False):
         await message.reply("**Important Notice: The bot is currently unable to execute commands as expected**\n\n**Please check /why for full information**")
         return
 
+    # Ensure user exists and has an Amazon tag
     if not user:
         await message.reply("**✨ Please /start Bot Again**")
         return
-
+    
     amazon_tag = user.get('amazon_tag')
     if not amazon_tag:
         await message.reply("**Please /start Add Your Amazon Tag in User Settings**")
         return
 
+    # Check if the message is a command or a reply
     if message.command and len(message.command) > 1:
         url = message.command[1]
     elif message.reply_to_message:
         url = message.reply_to_message.text
     else:
-        await message.reply("""**🚶🏻.. Please Send Valid Amazon URL**
-        **Example:** `/demo https://amzn.to/3Yx1ztU`""")
+        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**\n\n**Example:** `/demo https://amzn.to/3Yx1ztU`")
         return
 
-    valid_prefixes = ["https://amzn.to/", "https://amzn.in/"]
-    if any(url.startswith(prefix) for prefix in valid_prefixes):
+    # Handle amzn.to and amzn.in short URLs
+    if url.startswith("https://amzn.to/") or url.startswith("https://amzn.in/"):
         try:
             response = requests.get(url, allow_redirects=False)
-            if response.status_code != 200:
-                await message.reply("**Error: Unable to reach the URL. Please check and try again**")
-                return
-
             location = response.headers.get('location')
             if location:
                 url = location
             else:
-                await message.reply("**Error: Unable to extract product code from shortened URL**")
+                await message.reply("**Error: Unable to extract product code from shortened URL.**")
                 return
         except Exception as e:
             await message.reply(f"**Error resolving shortened URL: {e}**")
             return
 
+    # Validate product URL format and extract ASIN
     match = re.search(r'/dp/([A-Z0-9]{10})|/product/([A-Z0-9]{10})|/gp/([A-Z0-9]{10})', url)
     if not match:
         await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
         return
 
-    asin = match.group(1) or match.group(2) or match.group(3)
+    # Extract the ASIN from the matched group
+    asin = match.group(1) if match.group(1) else match.group(2) if match.group(2) else match.group(3)
 
+    # Modify the URL with the Amazon tag
     url_parts = list(urlparse(url))
     query_params = parse_qs(url_parts[4])
+
+    # Update or add the tag parameter
     query_params['tag'] = [amazon_tag]
+
+    # Remove duplicate ref parameters
     query_params = {key: value for key, value in query_params.items() if key != 'ref'}
+
+    # Rebuild the query string
     url_parts[4] = urlencode(query_params, doseq=True)
     updated_url = urlunparse(url_parts)
 
     try:
+        # Call the scrape_amazon_product function to fetch product details
         product_details, product_image_url = scrape_amazon_product(updated_url)
+
         footer = user.get('footer', '')
         if footer:
             product_details += f"\n\n**{footer}**"
 
         if product_image_url:
+            # Send the product details to the user
             await message.reply_photo(photo=product_image_url, caption=product_details)
 
+            # Forward the product details to the user's specified channel
             channel = user.get('channel', '')
             if channel:
                 try:
+                    # Forward the message to the channel
                     await client.send_photo(chat_id=channel, photo=product_image_url, caption=product_details)
                 except Exception as e:
                     await message.reply(f"**Error forwarding to channel: {e}**")
 
+            # Log the new link to the log channel
             username = message.from_user.username or "None"
-            notification_text = f"**#Newlink from @{username} 😘**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
+            notification_text = f"**#Newlink from @{username} 🙂**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
             await client.send_message(LOG_CHANNEL, notification_text)
 
         else:
