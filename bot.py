@@ -444,10 +444,11 @@ def scrape_multiple_products(urls):
 
 # Command to scrape Amazon product
 @app.on_message(filters.command("demo") & (filters.private | filters.group))
+@app.on_message(filters.reply & (filters.private | filters.group))
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**\n\n**Examaple:** `/demo https://amzn.to/3Yx1ztU`")
+            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**\n\n**Example:** `/demo https://amzn.to/3Yx1ztU`")
             return
 
         url = message.command[1]
@@ -456,7 +457,6 @@ async def scrape(client, message):
         # Fetch user info from the database using user_id
         user_id = message.from_user.id  # Get the user ID from the message
         user = users_collection.find_one({"user_id": user_id})
-
 
         if not user:
             await message.reply("**✨ Please /start Bot**")
@@ -471,9 +471,13 @@ async def scrape(client, message):
         else:
             await message.reply(product_details)
 
+        # Log the new link to the log channel
+        username = message.from_user.username or "None"
+        notification_text = f"**#Newlink from @{username} 🙂**\n**UserID:** `{user_id}`\n\n**Demo Link:** {url}"
+        await client.send_message(LOG_CHANNEL, notification_text)
+
     except Exception as e:
         await message.reply(f"**An error occurred while getting: {e}**")
-            
  
 @app.on_message(filters.command("bcast") & filters.user(OWNER_ID))
 async def handle_broadcast(client, message):
