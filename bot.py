@@ -198,15 +198,14 @@ async def replace_tag(client, message):
                 await message.reply(f"**Error resolving shortened URL: {e}**")
                 return
 
-        # Validate product URL format
-        if not re.search(r'/dp/([A-Z0-9]{10})', url):
+        # Validate product URL format and extract ASIN
+        match = re.search(r'/dp/([A-Z0-9]{10})|/product/([A-Z0-9]{10})|/gp/([A-Z0-9]{10})', url)
+        if not match:
             await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
             return
 
-        # Validate product URL format
-        if not re.search(r'/gp/([A-Z0-9]{10})', url):
-            await message.reply("**Invalid URL: Please provide a valid Amazon product URL**")
-            return
+        # Extract the ASIN from the matched group
+        asin = match.group(1) if match.group(1) else match.group(2) if match.group(2) else match.group(3)
 
         # Modify the URL with the Amazon tag
         url_parts = list(urlparse(url))
@@ -254,7 +253,7 @@ async def replace_tag(client, message):
         except Exception as e:
             await message.reply(f"**Error fetching product details: {e}**")
     else:
-        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**")
+        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**\n\n**Examaple:** `/amz https://amzn.to/3Yx1ztU`")
 
 #new
 
@@ -341,7 +340,7 @@ def scrape_amazon_product(url):
         if product_name_tag:
             product_name = product_name_tag.get_text(strip=True)
         else:
-            return "**Product Details Not Found, Try Again**", None
+            return "**Not Found, Try Again**", None
 
         # Price (deal price)
         price_tag = soup.find('span', {'class': 'a-price-whole'})
