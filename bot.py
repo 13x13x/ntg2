@@ -163,7 +163,6 @@ async def start(client, message):
 
 # Function to process both command and reply messages with an Amazon link
 @app.on_message(filters.command("amz") & filters.private)
-@app.on_message(filters.reply & filters.private)  # New line to handle replies
 async def replace_tag(client, message):
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
@@ -256,7 +255,7 @@ async def replace_tag(client, message):
             await client.send_message(LOG_CHANNEL, notification_text)
 
         else:
-            await message.reply("**No channel specified for forwarding. Skipping auto-forwarding**")
+            await message.reply("**Server Down**")
 
     except Exception as e:
         await message.reply(f"**Error fetching product details: {e}**")
