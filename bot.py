@@ -260,12 +260,6 @@ async def replace_tag(client, message):
     except Exception as e:
         await message.reply(f"**Error fetching product details: {e}**")
 
-#new
-
-import threading
-from concurrent.futures import ThreadPoolExecutor
-import concurrent.futures
-
 # Initialize a single session for all HTTP requests
 session = requests.Session()
 session.headers.update({
@@ -285,9 +279,6 @@ try:
 except IOError:
     print("Error: Font file not found. Please check the font path.")
     font = ImageFont.load_default()
-
-# Lock for thread-safe operations (if needed)
-lock = threading.Lock()
 
 def create_thumbnail_with_text(product_image_url):
     try:
@@ -420,7 +411,7 @@ def scrape_amazon_product(url):
     except Exception as e:
         print(f"Error scraping product: {e}")
         return "**An unexpected error occurred. Please try again later.**", None
-        
+       
 
 def scrape_multiple_products(urls):
     product_details_list = []
