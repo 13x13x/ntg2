@@ -57,7 +57,7 @@ app = Client(
 @app.on_message(filters.command("why") & filters.private)
 async def why_command(client, message):
     response_text = (
-        "**🙏🏻 Subscription Required For Bot Access**\n\n"
+        "**�� Subscription Required For Bot Access**\n\n"
         "**Dear User,**\n\n"
         "**We regret to inform you that you currently do not have access to the features of our bot** "
         "**To enjoy full functionality, we kindly invite you to purchase a subscription from the owner**\n\n"
@@ -132,7 +132,7 @@ async def start(client, message):
                 username = message.from_user.username
             else:
                 username = "Nonee"
-            notification_text = f"**#NewUser from Ultraamz 😘**\n**UserID:** `{user_id}`\n**Username: @{username}**"
+            notification_text = f"**#NewUser from Ultraamz �**\n**UserID:** `{user_id}`\n**Username: @{username}**"
             await client.send_message(LOG_CHANNEL, notification_text)
         except Exception as e:
             print(f"Error sending notification to log channel: {e}")
@@ -141,7 +141,7 @@ async def start(client, message):
         print(f"User {user_id} already exists in the database")  # Debugging line
 
     # Welcome text without formatting
-    welcome_text = "**🛒 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**↓↓ ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ↓↓**"
+    welcome_text = "**� ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴀғғɪʟɪᴀᴛᴇ ʟɪɴᴋ ᴄʀᴇᴀᴛᴏʀ ʙᴏᴛ! ᴡɪᴛʜ ᴘʀᴏᴅᴜᴄᴛ ᴅᴀᴛᴀɪʟs**\n\n**↓↓ ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴍᴀɴᴀɢᴇ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ↓↓**"
 
     # Create the inline keyboard
     keyboard = InlineKeyboardMarkup([
@@ -188,7 +188,7 @@ async def replace_tag(client, message):
     elif message.reply_to_message:
         url = message.reply_to_message.text
     else:
-        await message.reply("**🚶🏻.. Please Send Valid Amazon URL**\n\n**Example:** `/amz https://amzn.to/3Yx1ztU`")
+        await message.reply("**��.. Please Send Valid Amazon URL**\n\n**Example:** `/amz https://amzn.to/3Yx1ztU`")
         return
 
     # Handle amzn.to and amzn.in short URLs
@@ -251,7 +251,7 @@ async def replace_tag(client, message):
 
             # Log the new link to the log channel
             username = message.from_user.username or "None"
-            notification_text = f"**#Newlink from @{username} 🙂**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
+            notification_text = f"**#Newlink from @{username} �**\n**UserID:** `{user_id}`\n\n**Link:** {url}"
             await client.send_message(LOG_CHANNEL, notification_text)
 
         else:
@@ -259,6 +259,12 @@ async def replace_tag(client, message):
 
     except Exception as e:
         await message.reply(f"**Error fetching product details: {e}**")
+
+#new
+
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 # Initialize a single session for all HTTP requests
 session = requests.Session()
@@ -279,6 +285,9 @@ try:
 except IOError:
     print("Error: Font file not found. Please check the font path.")
     font = ImageFont.load_default()
+
+# Lock for thread-safe operations (if needed)
+lock = threading.Lock()
 
 def create_thumbnail_with_text(product_image_url):
     try:
@@ -377,7 +386,7 @@ def scrape_amazon_product(url):
                 if mrp_value > price_value:
                     discount = mrp_value - price_value
                     discount_percentage = (discount / mrp_value) * 100 if mrp_value else 0
-                    discount_text = f"😱 **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) 🔥**\n\n"
+                    discount_text = f"� **Discount: ₹{discount:.2f} ({discount_percentage:.2f}%) �**\n\n"
             except (ValueError, TypeError):
                 discount_text = ""
 
@@ -397,11 +406,11 @@ def scrape_amazon_product(url):
                     # Create white background thumbnail
                     product_thumbnail = create_thumbnail_with_text(product_image_url)
         # Final product details response
-        product_details = f"🤯 **{product_name}**\n\n"
+        product_details = f"� **{product_name}**\n\n"
         product_details += discount_text  # Add discount only if available
         if mrp != 'not applicable':
             product_details += f"❌ **Regular Price:** **~~{mrp}/-~~**\n\n"
-        product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[🛒 𝗕𝗨𝗬 𝗡𝗢𝗪]({url})**"
+        product_details += f"✅ **Deal Price: ₹{price}/-**\n\n**[� ��� ���]({url})**"
 
         return product_details, product_thumbnail
 
@@ -411,7 +420,7 @@ def scrape_amazon_product(url):
     except Exception as e:
         print(f"Error scraping product: {e}")
         return "**An unexpected error occurred. Please try again later.**", None
-       
+        
 
 def scrape_multiple_products(urls):
     product_details_list = []
@@ -437,7 +446,7 @@ def scrape_multiple_products(urls):
 async def scrape(client, message):
     try:
         if len(message.command) < 2:
-            await message.reply("**🚶🏻.. Please Send a Vaild Amazon URL**\n\n**Example:** `/demo https://amzn.to/3Yx1ztU`")
+            await message.reply("**��.. Please Send a Vaild Amazon URL**\n\n**Example:** `/demo https://amzn.to/3Yx1ztU`")
             return
 
         url = message.command[1]
@@ -462,7 +471,7 @@ async def scrape(client, message):
 
         # Log the new link to the log channel
         username = message.from_user.username or "None"
-        notification_text = f"**#Newlink from @{username} 🙂**\n**UserID:** `{user_id}`\n\n**Demo Link:** {url}"
+        notification_text = f"**#Newlink from @{username} �**\n**UserID:** `{user_id}`\n\n**Demo Link:** {url}"
         await client.send_message(LOG_CHANNEL, notification_text)
 
     except Exception as e:
@@ -491,6 +500,9 @@ async def handle_fusers(client, message):
     
 
 # User Settings Menu with updated Add/Edit buttons
+@app.on_callback_query(filters.regex("user_settings"))
+async def user_settings(client, callback_query):
+    user# User Settings Menu with updated Add/Edit buttons
 @app.on_callback_query(filters.regex("user_settings"))
 async def user_settings(client, callback_query):
     user_id = callback_query.from_user.id
@@ -532,7 +544,7 @@ async def user_settings(client, callback_query):
         f"├─ **ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ᴛᴏ ᴄʜᴀɴɴᴇʟ :** `{channel}`\n"
         f"│\n"
         f"└───────────────────\n\n"
-        f"**📝 ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ sᴇᴛ, ᴇᴅɪᴛ, ᴏʀ ʀᴇᴍᴏᴠᴇ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ, ғᴏᴏᴛᴇʀ, ᴀɴᴅ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ..**",
+        f"**� ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ sᴇᴛ, ᴇᴅɪᴛ, ᴏʀ ʀᴇᴍᴏᴠᴇ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ, ғᴏᴏᴛᴇʀ, ᴀɴᴅ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ..**",
         reply_markup=keyboard
     )
 
@@ -550,7 +562,7 @@ async def add_tag(client, callback_query):
     user_id = callback_query.from_user.id
     # Set awaiting_tag to True for this user
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_tag": True}})
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**� ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ɪɴ ᴛʜᴇ ғᴏʀᴍᴀᴛ:**\n\n**ᴇxᴀᴍᴘʟᴇ :** `csls0d6-21`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ �� sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     await sleep(60)
 
@@ -559,7 +571,7 @@ async def add_tag(client, callback_query):
 
     if user_data and user_data.get("awaiting_tag"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_tag": False}})
-        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**��.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ᴛᴇxᴛ ᴡɪᴛʜɪɴ �� sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
 
 @app.on_callback_query(filters.regex("add_footer"))
@@ -570,7 +582,7 @@ async def add_footer(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": True}})
 
     # Send initial message to prompt the user to send the footer text
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `Share & Join @Yourchannel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
+    await callback_query.message.reply("**� ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴇxᴀᴍᴘʟᴇ :** `Share & Join @Yourchannel`\n\n(**ʏᴏᴜ ʜᴀᴠᴇ �� sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ**)")
 
     # Wait for 60 seconds
     await sleep(60)
@@ -580,7 +592,7 @@ async def add_footer(client, callback_query):
 
     if user_data and user_data.get("awaiting_footer"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_footer": False}})
-        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**��.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ғᴏᴏᴛᴇʀ ᴛᴇxᴛ ᴡɪᴛʜɪɴ �� sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
 
 #Autoforward
 
@@ -592,7 +604,7 @@ async def add_channel(client, callback_query):
     users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": True}})
 
     # Send initial message to prompt the user to send the channel username
-    await callback_query.message.reply("**🙂 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴘʀᴏᴠɪᴅᴇ ᴏɴʟʏ ᴛʜᴇ ᴘᴜʙʟɪᴄ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ**\n\n**ᴇxᴀᴍᴘʟᴇ:** `@PIFDealss`\n\n**ɴᴏᴛᴇ: ɪғ ᴛʜᴇ ʙᴏᴛ ɪs ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ, ᴛʜᴇ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ғᴇᴀᴛᴜʀᴇ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ**\n\n**(ʏᴏᴜ ʜᴀᴠᴇ 60 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ)**")
+    await callback_query.message.reply("**� ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴛᴏ sᴀᴠᴇ!**\n\n**ᴘʀᴏᴠɪᴅᴇ ᴏɴʟʏ ᴛʜᴇ ᴘᴜʙʟɪᴄ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ**\n\n**ᴇxᴀᴍᴘʟᴇ:** `@PIFDealss`\n\n**ɴᴏᴛᴇ: ɪғ ᴛʜᴇ ʙᴏᴛ ɪs ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ, ᴛʜᴇ ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ғᴇᴀᴛᴜʀᴇ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ**\n\n**(ʏᴏᴜ ʜᴀᴠᴇ 60 sᴇᴄᴏɴᴅs ᴛᴏ ʀᴇᴘʟʏ)**")
 
     # Wait for 60 seconds
     await sleep(60)
@@ -602,7 +614,7 @@ async def add_channel(client, callback_query):
 
     if user_data and user_data.get("awaiting_channel"):
         users_collection.update_one({"user_id": user_id}, {"$set": {"awaiting_channel": False}})
-        await callback_query.message.reply("**🚶🏻.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴡɪᴛʜɪɴ 𝟼𝟶 sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
+        await callback_query.message.reply("**��.. ᴛɪᴍᴇᴏᴜᴛ!** **ʏᴏᴜ ᴅɪᴅ ɴᴏᴛ sᴇɴᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ ᴡɪᴛʜɪɴ �� sᴇᴄᴏɴᴅs ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ**")
         return
 
                                                                     
@@ -619,16 +631,16 @@ async def capture_tag_or_footer(client, message):
             if is_valid_amazon_tag(message.text):
                 # Save the Amazon tag and reset awaiting_tag to False
                 users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": message.text, "awaiting_tag": False}})
-                await message.reply("**😘 ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+                await message.reply("**� ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             else:
-                await message.reply("**🥴 ɪɴᴠᴀʟɪᴅ ᴛᴀɢ ғᴏʀᴍᴀᴛ**")
+                await message.reply("**� ɪɴᴠᴀʟɪᴅ ᴛᴀɢ ғᴏʀᴍᴀᴛ**")
             return
 
         # Check if awaiting a footer
         if user.get('awaiting_footer'):
             # Save the footer and reset awaiting_footer to False
             users_collection.update_one({"user_id": user_id}, {"$set": {"footer": message.text, "awaiting_footer": False}})
-            await message.reply("**😘 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+            await message.reply("**� ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
             return
             
         # Check if awaiting a channel username
@@ -647,28 +659,28 @@ async def capture_tag_or_footer(client, message):
             else:
                 # Save the channel username and reset awaiting_channel to False
                 users_collection.update_one({"user_id": user_id}, {"$set": {"channel": message.text, "awaiting_channel": False}})
-                await message.reply("**😘 ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
+                await message.reply("**� ᴄʜᴀɴɴᴇʟ ʜᴀs ʙᴇᴇɴ sᴀᴠᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ!**")
 
 # Handle Remove Tag
 @app.on_callback_query(filters.regex("remove_tag"))
 async def remove_tag(client, callback_query):
     user_id = callback_query.from_user.id
     users_collection.update_one({"user_id": user_id}, {"$set": {"amazon_tag": None}})
-    await callback_query.answer("🙃 ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
+    await callback_query.answer("� ʏᴏᴜʀ ᴀᴍᴀᴢᴏɴ ᴛᴀɢ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
 # Handle Remove auto forward 
 @app.on_callback_query(filters.regex("remove_channel"))
 async def remove_channel(client, callback_query):
     user_id = callback_query.from_user.id
     users_collection.update_one({"user_id": user_id}, {"$set": {"channel": None}})
-    await callback_query.answer("🙃 ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ʜᴀs ʙᴇᴇɴ sᴛᴏᴘᴘᴇᴅ")
+    await callback_query.answer("� ᴀᴜᴛᴏ ғᴏʀᴡᴀʀᴅɪɴɢ ʜᴀs ʙᴇᴇɴ sᴛᴏᴘᴘᴇᴅ")
 
 # Handle Remove Footer
 @app.on_callback_query(filters.regex("remove_footer"))
 async def remove_footer(client, callback_query):
     user_id = callback_query.from_user.id
     users_collection.update_one({"user_id": user_id}, {"$set": {"footer": None}})
-    await callback_query.answer("🙃 ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
+    await callback_query.answer("� ғᴏᴏᴛᴇʀ ʜᴀs ʙᴇᴇɴ rᴇᴍᴏᴠᴇᴅ")
 
 
 # Starting the bot
